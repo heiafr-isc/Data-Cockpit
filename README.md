@@ -10,6 +10,7 @@ Welcome to the project! This document will guide you through various sections.
 - [Usage](#usage)
 - [Issue and bug report](#issue)
 - [Contributing](#contributing)
+- [Discussions](#discussion)
 - [License](#license)
 
 ## Introduction
