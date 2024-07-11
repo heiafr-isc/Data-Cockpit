@@ -1,0 +1,118 @@
+/*
+ * This file is part of one of the Data-Cockpit libraries.
+ * 
+ * Copyright (C) 2024 ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE (EPFL)
+ * 
+ * Author - Sébastien Rumley (sebastien.rumley@hefr.ch)
+ * 
+ * This open source release is made with the authorization of the EPFL,
+ * the institution where the author was originally employed.
+ * The author is currently affiliated with the HEIA-FR, which is the actual publisher.
+ * 
+ * The Data-Cockpit program is free software, you can redistribute it and/or modify
+ * it under the terms of GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * The Data-Cockpit program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * 
+ * Contributor list -
+ */
+package ch.heiafr.isc.datacockpit.visualizer.charts.paints;
+
+import java.awt.Color;
+import java.awt.PaintContext;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.Transparency;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.ColorModel;
+import java.awt.image.Raster;
+import java.awt.image.WritableRaster;
+
+public class LeftScratches extends Texture {
+
+	private Color backGroudColor, scratchesColor;
+
+	public LeftScratches() {
+		this.backGroudColor = Color.BLACK;
+		this.scratchesColor = Color.WHITE;
+	}
+
+	@Override
+	public PaintContext createContext(ColorModel cm, Rectangle deviceBounds,
+			Rectangle2D userBounds, AffineTransform xform, RenderingHints hints) {
+		return new LeftStrachesContext(cm, deviceBounds, this.backGroudColor,
+				this.scratchesColor);
+	}
+
+	@Override
+	public int getTransparency() {
+		if (this.backGroudColor.getAlpha() < 255
+				|| this.scratchesColor.getAlpha() < 255) {
+			return Transparency.TRANSLUCENT;
+		}
+		return Transparency.OPAQUE;
+	}
+
+	@Override
+	public Color getColor() {
+		return this.scratchesColor;
+	}
+
+	@Override
+	public void setColor(Color c) {
+		this.scratchesColor = c;
+	}
+
+	private class LeftStrachesContext implements PaintContext {
+		private ColorModel colorModel;
+		private Rectangle containingRectangle;
+		private int backGroundColor, scratchesColor;
+
+		private LeftStrachesContext(ColorModel colorModel,
+				Rectangle containingRectangle, Color background, Color scratches) {
+			this.colorModel = colorModel;
+			this.containingRectangle = containingRectangle;
+			this.backGroundColor = background.getRGB();
+			this.scratchesColor = scratches.getRGB();
+		}
+
+		@Override
+		public void dispose() {
+		}
+
+		@Override
+		public ColorModel getColorModel() {
+			return this.colorModel;
+		}
+
+		@Override
+		public Raster getRaster(int x, int y, int width, int height) {
+			WritableRaster raster = this.colorModel
+			.createCompatibleWritableRaster(width, height);
+			int xx = x - this.containingRectangle.x;
+			int yy = y - this.containingRectangle.y;
+			for (int i = 0; i < width; i++) {
+				for (int j = 0; j < height; j++) {
+					int color = this.scratchesColor;
+					if ((i + xx) % 4 == (j + yy) % 4) {
+						color = this.backGroundColor;
+					}
+					Color col = new Color(color);
+					int[] rgb = new int[] {col.getRed(), col.getGreen(), col.getBlue()};
+					raster.setPixel(i, j, rgb);
+				}
+			}
+			return raster;
+		}
+	}
+
+}

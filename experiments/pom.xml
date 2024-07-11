@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>experiments</artifactId>
+    <version>1.0.0</version>
+
+    <parent>
+        <groupId>ch.heia-fr.isc</groupId>
+        <artifactId>datacockpit</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+
+    <name>Cockpit-experiment</name>
+    <url>https://github.com/heiafr-isc/Data-Cockpit</url>
+    <description>
+        This project is a show-case of the Data-Cockpit program. The goal is to demonstrate a simple
+        application of the different Data-Cockpit components once they are assembled.
+        This project should help people to understand how to implement the Experiment interface, which will trigger
+        the Tree iteration, the Database being populated and the visualization of the data offered by the Visualizer.
+    </description>
+
+    <properties>
+        <jar.finalName>${project.name}-${project.version}</jar.finalName>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>ch.heia-fr.isc</groupId>
+            <artifactId>general-libraries</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.heia-fr.isc</groupId>
+            <artifactId>tree</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.heia-fr.isc</groupId>
+            <artifactId>visualizer</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.heia-fr.isc</groupId>
+            <artifactId>database</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>

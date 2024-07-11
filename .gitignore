@@ -1,6 +1,6 @@
 .idea/
 output/
 target/
-experiments/test/
-src/main/java/ch/epfl/javancox.uml
+/default_graphs
+/output
 
