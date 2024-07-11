@@ -1,0 +1,185 @@
+name: Versioning Workflow
+
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  update-versions:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Set up JDK 11
+      uses: actions/setup-java@v2
+      with:
+        java-version: '11'
+        distribution: 'adopt'
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install lxml packaging
+
+    - name: Extract Module Updates from PR Description
+      id: extract_updates
+      run: |
+        #!/bin/bash
+
+        # Extract the pull request body
+        PR_BODY=$(jq -r .pull_request.body < "$GITHUB_EVENT_PATH")
+
+        # Initialize variables
+        PATCH_MODULES=()
+        MINOR_MODULES=()
+        MAJOR_MODULES=()
+
+        # Check for module updates
+        while read -r line; do
+          case $line in
+            *"tree"* )
+              MODULE_NAME="tree"
+              ;;
+            *"database"* )
+              MODULE_NAME="database"
+              ;;
+            *"visualizer"* )
+              MODULE_NAME="visualizer"
+              ;;
+            *"general_libraries"* )
+              MODULE_NAME="general_libraries"
+              ;;
+            *"- [x] Patch update(s)"* )
+              PATCH_MODULES+=($MODULE_NAME)
+              ;;
+            *"- [x] Minor update(s)"* )
+              MINOR_MODULES+=($MODULE_NAME)
+              ;;
+            *"- [x] Major update(s)"* )
+              MAJOR_MODULES+=($MODULE_NAME)
+              ;;
+          esac
+        done <<< "$PR_BODY"
+
+        # Save the modules to GitHub environment
+        echo "PATCH_MODULES=${PATCH_MODULES[@]}" >> $GITHUB_ENV
+        echo "MINOR_MODULES=${MINOR_MODULES[@]}" >> $GITHUB_ENV
+        echo "MAJOR_MODULES=${MAJOR_MODULES[@]}" >> $GITHUB_ENV
+
+    - name: Print Extracted Modules
+      run: |
+        echo "Patch Modules: ${{ env.PATCH_MODULES }}"
+        echo "Minor Modules: ${{ env.MINOR_MODULES }}"
+        echo "Major Modules: ${{ env.MAJOR_MODULES }}"
+
+    - name: Update Patch Modules
+      if: env.PATCH_MODULES != ''
+      run: |
+        for module in $PATCH_MODULES; do
+          mvn -f $module/pom.xml build-helper:parse-version versions:set -DnewVersion='${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.nextIncrementalVersion}'
+        done
+
+    - name: Update Minor Modules
+      if: env.MINOR_MODULES != ''
+      run: |
+        for module in $MINOR_MODULES; do
+          mvn -f $module/pom.xml build-helper:parse-version versions:set -DnewVersion='${parsedVersion.majorVersion}.${parsedVersion.nextMinorVersion}.0'
+        done
+
+    - name: Update Major Modules
+      if: env.MAJOR_MODULES != ''
+      run: |
+        for module in $MAJOR_MODULES; do
+          mvn -f $module/pom.xml build-helper:parse-version versions:set -DnewVersion='${parsedVersion.nextMajorVersion}.0.0'
+        done
+
+    - name: Update Parent Properties
+      run: |
+        mvn versions:update-properties
+
+    - name: Determine Overall Update Level
+      id: update_level
+      run: |
+        if [ -n "$MAJOR_MODULES" ]; then
+          echo "update_level=major" >> $GITHUB_ENV
+        elif [ -n "$MINOR_MODULES" ]; then
+          echo "update_level=minor" >> $GITHUB_ENV
+        else
+          echo "update_level=patch" >> $GITHUB_ENV
+        fi
+
+    - name: Run Python Script to Update Parent Version
+      run: |
+        NEW_VERSION=$(python3 update_parent_version.py ${{ env.update_level }})
+        echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_ENV
+
+    - name: Update Child Modules
+      run: |
+        mvn -N versions:update-child-modules
+        
+    - name: Check PR Description
+      id: description-checker
+      uses: jadrol/pr-description-checker-action@v1.0.0
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        exempt-labels: no qa
+        
+    - name: Update Changelog
+      run: |
+        NEW_VERSION="${{ env.NEW_VERSION }}"
+        PR_DESCRIPTION=$(jq -r '.pull_request.body' "$GITHUB_EVENT_PATH" | awk '/## Changelog Information/,/-->/ {found = 1; next} found')
+        DATE=$(date +'%Y.%m.%d')
+    
+        echo "NEW_VERSION=${NEW_VERSION}"
+        echo "PR_DESCRIPTION=${PR_DESCRIPTION}"
+        echo "DATE=${DATE}"
+    
+        if [ "${{ env.update_level }}" == 'patch' ]; then
+          # Insert entry into CHANGELOG.md under Unreleased section
+          echo -e "### ${NEW_VERSION}\n${PR_DESCRIPTION}" | sed -i '/## Unreleased/r /dev/stdin' CHANGELOG.md
+        else
+          NEW_ENTRY="## ${NEW_VERSION} (${DATE})\n${PR_DESCRIPTION}"
+          # Insert new entry into CHANGELOG.md under Unreleased section
+          echo -e "${NEW_ENTRY}" | sed -i '/## Unreleased/r /dev/stdin' CHANGELOG.md
+        fi
+
+    - name: Commit and Push Changes
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add .
+        git commit -m "Update CHANGELOG and module versions based on PR #${{ github.event.pull_request.number }}"
+        git push origin main
+
+    - name: Extract Changelog for Latest Release
+      if: env.update_level != 'patch'
+      id: extract_changelog
+      run: |
+        # Get the content of CHANGELOG.md
+        CHANGELOG=$(cat CHANGELOG.md)
+                 
+        # Extract the section after "## Unreleased" and before the next "## " header
+        RELEASE_NOTE=$(echo "$CHANGELOG" | sed -n '/## Unreleased/{n;:a;n;/^## /q;p;ba}')
+                 
+        # Export the extracted changelog as an environment variable
+        echo "RELEASE_NOTE<<EOF" >> $GITHUB_ENV
+        echo "$RELEASE_NOTE" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
+               
+    - name: Create Release
+      if: env.update_level != 'patch'
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ env.NEW_VERSION }} # Assuming NEW_VERSION is set earlier
+        release_name: ${{ env.update_level }} Release v${{ env.NEW_VERSION }}
+        body: |
+           ${{ env.RELEASE_NOTE }}
+        draft: false
+        prerelease: false
