@@ -1,0 +1,54 @@
+name: Documentation improvements
+description: Any suggestion to improve documentation of the project is welcomed here
+labels: ["Status: Awaiting triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This form offers the possibility to report any documentation flaws you may notice. If you want to report one of the following thing, you're at the good place :
+        * You have noticed a spelling or syntax error somewhere. A suggestion for a better phrasing
+        * A document, such as a diagram or a schematic, contains an error or unclear information
+        * The organization of the project, whether on a GitHub page or in the project's non-code files, can be improved
+  - type: textarea
+    id: involved-file
+    attributes:
+      label: What file is involved ?
+      description: Please, let us know what file requires an update
+      placeholder: ex. The component diagram, in the /diagram folder held by root directory
+    validations:
+      required: false 
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is the exact problem with the current documentation ?
+      description: Describe as precisly as possible where the problem is located. Explain what error, flaw or unclear information you spotted.
+      placeholder: eg. 30th line of the README file - "Example sentence ..."
+    validations:
+      required: false    
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: What is the suggestions you have to improve the project's documentation ?
+      description: Please, share your suggestion to improve the project
+      placeholder: eg. Correction suggestions...
+    validations:
+      required: false   
+
+  - type: textarea
+    id: other
+    attributes:
+      label: Other important informations or other kind of issue 
+      description: If the previous fields do not suit your needs, please explain the situation here
+      placeholder: Any important additionnal information
+    validations:
+      required: false  
+
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: I have checked existing issues related to project documentation
+      description: You agree to check all the resources above before opening a new issue.
+      options:
+        - label: I confirm I have checked existing issues
+    validations:
+      required: true
