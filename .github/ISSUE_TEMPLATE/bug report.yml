@@ -1,0 +1,90 @@
+
+name: Bug report
+description: Report any problem here
+labels: ["Status: Awaiting triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        * Before reporting a new issue please check and search in [List of existing issues](https://github.com/NPerrenoud/testing/issues) 
+        * If the issue is related to project configuration and first usage, check the [Getting Started](https://github.com/NPerrenoud/testing) document. 
+        * Take a look on the [common issues](https://github.com/NPerrenoud/testing/wiki/Common-issues-and-problems) page. 
+        * If still experiencing the issue, please provide as many details as possible below about configuration, involved components and code.
+  - type: checkboxes
+    id: component
+    attributes:
+      label: What Data-Cockpit components are involved? 
+      description: You must check at least one of the options below to proceed.
+      options:
+        - label: The Tree component
+        - label: The Database component
+        - label: The Visualizer component
+        - label: None of them. The problem is related to a project configuration or setting
+        - label: I can't really tell
+    validations:
+      required: true        
+  - type: textarea
+    id: version
+    attributes:
+      label: Involved libraries version
+      description: What are the version of the Data-Cockpit libraries in use? If possible, consider updating to the latest version
+      placeholder: eg. Tree v.1.0.0 and Database v.1.1.1
+    validations:
+       required: true
+  - type: input
+    id: IDE
+    attributes:
+     label: IDE Name
+     description: What IDE are you using?
+     placeholder: eg. Visual Studio, IntelliJ Community Edition...
+    validations:
+     required: false
+  - type: input
+    id: os
+    attributes:
+      label: Operating System
+      description: On which OS does this issue occur?
+      placeholder: ex. macOS 12.1, Windows 10...
+    validations:
+      required: true
+  - type: textarea
+    id: Description
+    attributes:
+      label: Description
+      description: Please describe your problem here and expected behaviour
+      placeholder: ex. Some Experiment implementations are not properly displayed by the Tree GUI...
+    validations:
+      required: true
+  - type: textarea
+    id: snippet
+    attributes:
+      label: Code Snippet
+      description: Please provide full minimal code snippet related to the issue to help reproduce the problem
+      placeholder: ex. Related part of the code to replicate the issue
+      render: java
+    validations:
+     required: true
+  - type: textarea
+    id: Debug
+    attributes:
+      label: Debug Message
+      description: Please provide a debug message or error message. 
+      placeholder: ex. Copy/paste error message
+      render: plain
+    validations:
+      required: true      
+  - type: textarea
+    id: other-remarks
+    attributes:
+      label: Other Steps to Reproduce 
+      description: Is there any other information you can think of which will help us reproduce this problem? Any additional info can be added as well.
+      placeholder: eg. Personal code analysis, can the problem be reproduce 100% of the time? ...
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: I have checked existing issues, online documentation, and the Troubleshooting Guide
+      description: You agree to check all the resources above before opening a new issue.
+      options:
+        - label: I confirm I have checked existing issues, online documentation, and Troubleshooting guide.
+    validations:
+      required: true
