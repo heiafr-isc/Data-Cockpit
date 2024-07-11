@@ -1,0 +1,54 @@
+name: Feature request
+description: Suggest an new idea for this project or for an existing feature improvement
+labels: ["Type: Feature request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        * We welcome any ideas or feature requests! It is helpful if you can explain exactly why the feature would be useful.
+        * Please, make sure to have a look at the existing issues before creating a new one. Feel free to add comments to them.
+        * If you would like to contribute, please read the [contributions guide](https://github.com/NPerrenoud/testing/wiki/Contributiors-guideline).
+  - type: input
+    id: Area
+    attributes:
+      label: Related components
+      description: Please briefly explain what Data-Cockpit component(s) are involved 
+      placeholder: eg. Tree, Database, Visualizer or any other sub-packages
+    validations:
+      required: true
+  - type: textarea
+    id: problem-related
+    attributes:
+      label: Describe what the feature would add in the library or/and what problem it could solve.
+      description: Please provide a clear and concise description of what the feature would offer
+      placeholder: ex. I'm facing the [issue/missing function] to accomplish [some behavior] ...
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Describe the solution you'd like
+      description: Please provide a clear and concise description of what you want to happen.
+      placeholder: ex. When using this function...
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Describe alternatives you've considered
+      description: Please provide a clear and concise description of any alternative solutions or features you've considered.
+      placeholder: ex. Choosing other approach wouldn't work, because...
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Please add any other context,screenshots or code snippets about the feature request here.
+      placeholder: ex. This would work only when ...
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: I have checked existing list of Feature requests and the Contribution Guide
+      description: You agree to check all the resources above before opening a new Feature request.
+      options:
+        - label: I confirm I have checked existing list of Feature requests and Contribution Guide.
+          required: true
