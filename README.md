@@ -21,11 +21,21 @@ Data-Cockpit facilitates the entire process, from the setup and execution of exp
 
 ## Installation
 
-Installation instructions
+In order to use this program for developement purpose, anyone can freely fork this project. The code-base comes with all the different Data-Cockpit components ready to use in their latest version. 
+As the Data-Cockpit is still under developement, it currenlty still relies on the availability of the /div folder located at the root of the project. This folder contains various mandatory configurations used to set the project and to enable the looging feature. 
+Even if the project is ready to be used without further configuration, the removal of these configurations are planned for future releases. 
+
+To find more information about concret use of the program, check the [Usage](#usage) entry below. 
 
 ## Usage
 
-Simple usage example
+The Data-Cockpit can be used to configure, run and visualize various execution plans. This can be achieved by creating its own implementations of the Experiment interface. 
+
+Then, the Tree component is responsible for the enumeration of all the availible Experiment configuration within the program and will display them by using its own GUI. 
+The Database component registers all the Datapoint object created by the Tree and will manage them in order to redistribute them to the visualizer component or any other visualizer tools a user may have produced. 
+The Visualizer component is responsible for Data rendering by using various available graphs. It fetch the content of the Database component and compute the recieved information. 
+
+For more details explanation please take a look at the [getting started page](https://github.com/heiafr-isc/Data-Cockpit/wiki/Getting-Started)
 
 ## Issue
 
