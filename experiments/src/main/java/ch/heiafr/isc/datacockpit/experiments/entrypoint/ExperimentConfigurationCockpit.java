@@ -24,7 +24,7 @@
  * 
  * Contributor list -
  */
-package ch.heiafr.isc.datacockpit.tree.entrypoint;
+package ch.heiafr.isc.datacockpit.experiments.entrypoint;
 
 import java.io.File;
 

@@ -90,20 +90,6 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.0.0</version>
-                <configuration>
-                    <mainClass>ch.heiafr.isc.datacockpit.tree.entrypoint.ExperimentConfigurationCockpit</mainClass>
-                    <systemProperties>
-                        <systemProperty>
-                            <key>cockpit.path</key>
-                            <value>target/${project.build.finalName}.jar</value>
-                        </systemProperty>
-                    </systemProperties>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
             </plugin>

@@ -27,7 +27,7 @@
 package ch.heiafr.isc.datacockpit.experiments;
 
 import ch.heiafr.isc.datacockpit.tree.clazzes.ParamName;
-import ch.heiafr.isc.datacockpit.tree.entrypoint.ExperimentConfigurationCockpit;
+import ch.heiafr.isc.datacockpit.experiments.entrypoint.ExperimentConfigurationCockpit;
 import ch.heiafr.isc.datacockpit.tree.experiment_aut.Experiment;
 import ch.heiafr.isc.datacockpit.tree.experiment_aut.WrongExperimentException;
 import ch.heiafr.isc.datacockpit.general_libraries.results.AbstractResultsDisplayer;
