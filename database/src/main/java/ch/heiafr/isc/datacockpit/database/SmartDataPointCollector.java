@@ -47,9 +47,7 @@ import ch.heiafr.isc.datacockpit.general_libraries.utils.SimpleMap;
 import ch.heiafr.isc.datacockpit.general_libraries.utils.SimpleSet;
 import ch.heiafr.isc.datacockpit.database.io.ObjectStreamHelper;
 
-public class SmartDataPointCollector implements AdvancedDataRetriever,
-												AbstractResultsManager,
-												Serializable {
+public class SmartDataPointCollector extends AbstractInOutDataManager implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	ArrayList<InternalExecution> execList;

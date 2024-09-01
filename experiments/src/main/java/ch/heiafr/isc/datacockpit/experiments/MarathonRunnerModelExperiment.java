@@ -31,8 +31,8 @@ import ch.heiafr.isc.datacockpit.experiments.entrypoint.ExperimentConfigurationC
 import ch.heiafr.isc.datacockpit.tree.experiment_aut.Experiment;
 import ch.heiafr.isc.datacockpit.tree.experiment_aut.WrongExperimentException;
 import ch.heiafr.isc.datacockpit.general_libraries.results.AbstractResultsDisplayer;
-import ch.heiafr.isc.datacockpit.database.AbstractResultsManager;
-import ch.heiafr.isc.datacockpit.database.DataPoint;
+import ch.heiafr.isc.datacockpit.general_libraries.results.AbstractResultsManager;
+import ch.heiafr.isc.datacockpit.general_libraries.results.DataPoint;
 
 public class MarathonRunnerModelExperiment implements Experiment {
 	

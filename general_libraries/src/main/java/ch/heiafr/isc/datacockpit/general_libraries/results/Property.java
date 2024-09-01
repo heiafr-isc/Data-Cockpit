@@ -24,7 +24,7 @@
  * 
  * Contributor list -
  */
-package ch.heiafr.isc.datacockpit.database;
+package ch.heiafr.isc.datacockpit.general_libraries.results;
 
 import java.io.Serializable;
 import java.util.Map.Entry;
