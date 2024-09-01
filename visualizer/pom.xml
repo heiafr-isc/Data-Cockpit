@@ -10,7 +10,7 @@
     <parent>
         <groupId>ch.heia-fr.isc</groupId>
         <artifactId>datacockpit</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1</version>
     </parent>
 
     <name>Cockpit-visualizer</name>
