@@ -49,7 +49,6 @@ import ch.heiafr.isc.datacockpit.database.io.ObjectStreamHelper;
 
 public class SmartDataPointCollector implements AdvancedDataRetriever,
 												AbstractResultsManager,
-												SaveAndLoadAble,
 												Serializable {
 
 	private static final long serialVersionUID = 1L;
