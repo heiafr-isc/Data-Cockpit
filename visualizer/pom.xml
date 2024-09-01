@@ -51,11 +51,11 @@
 
     <dependencies>
         <dependency>
-            <groupId>ch.heia-fr.isc</groupId>
+            <groupId>io.github.nperrenoud</groupId>
             <artifactId>general-libraries</artifactId>
         </dependency>
         <dependency>
-            <groupId>ch.heia-fr.isc</groupId>
+            <groupId>io.github.nperrenoud</groupId>
             <artifactId>database</artifactId>
         </dependency>
 
