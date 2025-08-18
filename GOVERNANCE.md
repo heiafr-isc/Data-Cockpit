@@ -1,5 +1,5 @@
 # Data-Cockpit Project Governance
-<!-- Template from https://contribute.cncf.io/maintainers/github/templates/required/governance-maintainer/ -->
+<!-- Template from https://contribute.cncf.io/maintainers/github/templates/required/governance-maintainer/. Community section taken from https://github.com/falcosecurity/evolution/blob/main/GOVERNANCE.md. -->
 
 
 The Data-Cockpit project is dedicated to creating a useful, complete and free tool to conduct research experiments. 
@@ -74,7 +74,9 @@ Responsibilities:
 
 ### Reviewers
 
-Reviewers are [Contributors](#contributors) who have technical experience in an area of the project, and are willing to help in reviewing pull requests. They are added or removed at the sole discretion of repository administrators.
+Reviewers are [Contributors](#contributors) who have technical experience in an area of 
+the project, and are willing to help in reviewing pull requests. They are added or removed 
+at the sole discretion of repository administrators.
 
 Defined by:
  - The CODEOWNERS file.
@@ -85,7 +87,9 @@ Responsibilities:
 
 ### Maintainers
 
-Maintainers are [Contributors](#contributors) who have shown significant and sustained contribution. They are highly experienced reviewers and contributors to a specific area of the project.
+Maintainers are [Contributors](#contributors) who have shown significant and sustained 
+contribution. They are highly experienced reviewers and contributors to a specific area of 
+the project.
 
 Requirements:
  - Active contribution and participation in one or more areas of the project.
@@ -93,7 +97,9 @@ Requirements:
  - Comprehensive understanding of project governance.
  - Known to uphold the projects best interests.
 
-Measurement of these criteria are subject to the determination of the existing maintainers as attested by the sponsoring maintainer (the person working with the interested contributor to show them the ropes).
+Measurement of these criteria are subject to the determination of the existing maintainers 
+as attested by the sponsoring maintainer (the person working with the interested 
+contributor to show them the ropes).
 
 Defined by:
  - The MAINTAINERS.md file `Maintainers list` entry
@@ -103,7 +109,8 @@ Responsibilities:
  - Monitor [the Discord server](https://discord.gg/GYHqyQYg7V). Delayed responses are acceptable.
  - Triage GitHub issues and review pull requests (PRs).
  - Make sure that PRs are moving forward at the right pace, or closing them.
- - Participate when called upon in security releases. Although this should be a rare occurrence, if a serious vulnerability is found it may take up to several full days of work.
+ - Participate when called upon in security releases. Although this should be a rare
+  occurrence, if a serious vulnerability is found it may take up to several full days of work.
  - Mentoring, encouraging, and sponsoring new reviewers and maintainers.
 
 #### Electing a Maintainer
@@ -159,7 +166,8 @@ Maintainer council.
 
 ## Maintainer council
 
-The Maintainer council is composed of all current Maintainers. They are responsible for the overall governance of the project and making decisions on behalf of the community.
+The Maintainer council is composed of all current Maintainers. They are responsible for 
+the overall governance of the project and making decisions on behalf of the community.
 
 ## Meetings
 
