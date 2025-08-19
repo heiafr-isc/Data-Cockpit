@@ -72,9 +72,9 @@ public class Logger {
 				if (System.getProperty("log4j.configuration") != null) {
 					System.out.println("Log4j configuration read from properties file");
 				} else {
-					f = new File("div/log4j.properties");
+					f = new File(LoggerResources.DEFAULT_PROPERTIES_LOG4J);
 					System.out.println("Log4j configuration file set to " + f.toURI().toURL().toString());
-					System.setProperty("log4j.configuration",f.toURI().toURL().toString());					
+					System.setProperty("log4j.configuration",f.toURI().toURL().toString());
 				}
 			}
 			System.out.println("Log4j conf is : \r\n-->   " + System.getProperty("log4j.configuration"));
@@ -90,8 +90,8 @@ public class Logger {
 			if (Logger.loggerOpe) {
 				logger.info("LOGGING SYSTEM OPERATIONNAL");
 			} else {
-				System.out.println("LOGGING SYSTEM ERROR");				
-			}			
+				System.out.println("LOGGING SYSTEM ERROR");
+			}
 		}
 	}
 
