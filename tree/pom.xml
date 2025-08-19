@@ -6,14 +6,15 @@
 
     <artifactId>tree</artifactId>
     <version>1.0.1</version>
+    <packaging>jar</packaging>
 
     <parent>
-        <groupId>ch.heia-fr.isc</groupId>
-        <artifactId>datacockpit</artifactId>
+        <groupId>ch.heia-fr.isc.data-cockpit</groupId>
+        <artifactId>data-cockpit-main</artifactId>
         <version>1.1.0</version>
     </parent>
 
-    <name>Cockpit-tree</name>
+    <name>Data-Cockpit Tree</name>
     <description>
         The Tree module of the Data Cockpit project is the component that will iterate through the different experiments.
         It comes with a dedicated user interface known as the TreeGUI.
@@ -51,11 +52,11 @@
 
     <dependencies>
         <dependency>
-            <groupId>ch.heia-fr.isc</groupId>
+            <groupId>ch.heia-fr.isc.data-cockpit</groupId>
             <artifactId>general-libraries</artifactId>
         </dependency>
         <dependency>
-            <groupId>ch.heia-fr.isc</groupId>
+            <groupId>ch.heia-fr.isc.data-cockpit</groupId>
             <artifactId>database</artifactId>
         </dependency>
 
