@@ -6,14 +6,15 @@
 
     <artifactId>general-libraries</artifactId>
     <version>1.1.0</version>
+    <packaging>jar</packaging>
 
     <parent>
-        <groupId>ch.heia-fr.isc</groupId>
-        <artifactId>datacockpit</artifactId>
+        <groupId>ch.heia-fr.isc.data-cockpit</groupId>
+        <artifactId>data-cockpit-main</artifactId>
         <version>1.1.0</version>
     </parent>
 
-    <name>Cockpit-genlib</name>
+    <name>Data-Cockpit genlib</name>
     <description>
         The general libraries module of the Cockpit project is used by all other modules. This is a convenient
         way to share common code among the different modules, and offer transitive API to manage properly

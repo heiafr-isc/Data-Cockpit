@@ -6,15 +6,16 @@
 
     <artifactId>experiments</artifactId>
     <version>1.0.0</version>
+    <packaging>jar</packaging>
 
     <parent>
-        <groupId>ch.heia-fr.isc</groupId>
-        <artifactId>datacockpit</artifactId>
+        <groupId>ch.heia-fr.isc.data-cockpit</groupId>
+        <artifactId>data-cockpit-main</artifactId>
         <version>1.1.0</version>
     </parent>
 
 
-    <name>Cockpit-experiment</name>
+    <name>Data-Cockpit Experiment</name>
     <url>https://github.com/heiafr-isc/Data-Cockpit</url>
     <description>
         This project is a show-case of the Data-Cockpit program. The goal is to demonstrate a simple
@@ -33,22 +34,22 @@
     <dependencies>
 
         <dependency>
-            <groupId>ch.heia-fr.isc</groupId>
+            <groupId>ch.heia-fr.isc.data-cockpit</groupId>
             <artifactId>general-libraries</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>ch.heia-fr.isc</groupId>
+            <groupId>ch.heia-fr.isc.data-cockpit</groupId>
             <artifactId>tree</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>ch.heia-fr.isc</groupId>
+            <groupId>ch.heia-fr.isc.data-cockpit</groupId>
             <artifactId>visualizer</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>ch.heia-fr.isc</groupId>
+            <groupId>ch.heia-fr.isc.data-cockpit</groupId>
             <artifactId>database</artifactId>
         </dependency>
     </dependencies>
