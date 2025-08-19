@@ -4,4 +4,5 @@ target/
 /default_graphs
 /output
 /groovy_scripts
+/javanco
 settings.xml

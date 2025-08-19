@@ -31,10 +31,9 @@ import java.io.File;
 import ch.heiafr.isc.datacockpit.general_libraries.logging.Logger;
 import ch.heiafr.isc.datacockpit.tree.gui.base.io.JavancoFile;
 
+import static ch.heiafr.isc.datacockpit.general_libraries.logging.LoggerResources.DEFAULT_PROPERTIES_JAVANCO;
 
 public class Javanco {
-
-	public static final String DEFAULT_PROPERTIES_LOCATION = "div/javanco.properties.xml";
 
 	public static final String JAVANCO_HOME_ABS_PROPERTY = "JAVANCO_HOME_ABS";
 	public static final String JAVANCO_HOME_PROPERTY = "JAVANCO_HOME";
@@ -48,12 +47,12 @@ public class Javanco {
 	}
 
 	public static void initJavanco() throws Exception {
-		initJavanco(null, DEFAULT_PROPERTIES_LOCATION, null, true, null);
+		initJavanco(null, DEFAULT_PROPERTIES_JAVANCO, null, true, null);
 	}
 
 	public static void initJavanco(String propertiesFile, String logFile, boolean relativeLogFile) throws Exception {
 		if (propertiesFile == null) {
-			propertiesFile = DEFAULT_PROPERTIES_LOCATION;
+			propertiesFile = DEFAULT_PROPERTIES_JAVANCO;
 		}
 		initJavanco(null, propertiesFile, logFile, relativeLogFile, null);
 	}
@@ -69,7 +68,7 @@ public class Javanco {
 		javancoHome = setJavancoHome(javancoHome);
 		initialised = true;
 		if (propertiesFile == null) {
-			JavancoFile.findAndProcessPropertiesFile(DEFAULT_PROPERTIES_LOCATION);
+			JavancoFile.findAndProcessPropertiesFile(DEFAULT_PROPERTIES_JAVANCO);
 		} else {
 			JavancoFile.findAndProcessPropertiesFile(propertiesFile);
 		}
