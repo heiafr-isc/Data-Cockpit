@@ -7,8 +7,11 @@ Provide a general summary of your changes in the Title above
 ## Description
 <!--- Describe your changes in detail here. This will help for the review of the PR -->
 
+## Related issues or discussions
+<!--- If any issues or discussions are related to this PR, please mention them here with direct link to them -->
+
 ## Checklist
-<!--- Check the boxes below to indicate what modules have been updated with relative modification importance-->
+<!--- Check the boxes below to indicate what modules have been updated with relative modification importance -->
 ### tree
 - [ ] Patch update(s)
 - [ ] Minor update(s)
