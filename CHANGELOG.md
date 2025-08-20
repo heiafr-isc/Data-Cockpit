@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### 1.3.0
+Explicit versions in module dependencies have been added to avoid denied updates by Maven.
+
+
+- tree: added explicit module version
+- database: added explicit module version
+- visualizer: added explicit module version
+- experiments: added explicit module version
+
 ## 1.2.0 (2025.08.20)
 
 
