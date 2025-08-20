@@ -2,9 +2,8 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 5.08.20 (2025.08.20)
 
-### 1.2.0 (2025.08.20)
 
 Enhanced: div folder resources embedded into general_libraries.
 - general_libraries: The `div` folder of the project root directory has been moved to the `general_libraries` resources, and references made by the Logger class have been updated accordingly. This allows the Logger to access the `div` folder resources without needing to be in the project root directory, making it more flexible.
