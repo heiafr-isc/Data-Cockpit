@@ -54,6 +54,7 @@
         <dependency>
             <groupId>ch.heia-fr.isc.data-cockpit</groupId>
             <artifactId>general-libraries</artifactId>
+            <version>${general-libraries.version}</version>
         </dependency>
 
         <dependency>

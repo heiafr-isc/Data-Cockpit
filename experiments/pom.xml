@@ -36,21 +36,25 @@
         <dependency>
             <groupId>ch.heia-fr.isc.data-cockpit</groupId>
             <artifactId>general-libraries</artifactId>
+            <version>${general-libraries.version}</version>
         </dependency>
 
         <dependency>
             <groupId>ch.heia-fr.isc.data-cockpit</groupId>
             <artifactId>tree</artifactId>
+            <version>${tree.version}</version>
         </dependency>
 
         <dependency>
             <groupId>ch.heia-fr.isc.data-cockpit</groupId>
             <artifactId>visualizer</artifactId>
+            <version>${visualizer.version}</version>
         </dependency>
 
         <dependency>
             <groupId>ch.heia-fr.isc.data-cockpit</groupId>
             <artifactId>database</artifactId>
+            <version>${database.version}</version>
         </dependency>
     </dependencies>
 
