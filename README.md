@@ -53,7 +53,7 @@ See the [contributing file](/CONTRIBUTING.md) for more information on how to con
 
 ## Discussion
 
-If you want to submit an idea, ask something about the program behaviour or other matter than are not suitable to open a new issue. Feel free to check the ["Discussions"](https:/github.com/heiafr-isc/Data-Cockpit/discussions) tab, or join [the Discord server](https://discord.gg/GYHqyQYg7V).
+If you want to submit an idea, ask something about the program behaviour or other matter than are not suitable to open a new issue. Feel free to check the [Discussions](https://github.com/heiafr-isc/Data-Cockpit/discussions) tab, or join [the Discord server](https://discord.gg/GYHqyQYg7V).
 
 ## Licence
 
