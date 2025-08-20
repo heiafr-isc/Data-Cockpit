@@ -4,7 +4,7 @@
 
     <groupId>ch.heia-fr.isc.data-cockpit</groupId>
     <artifactId>data-cockpit-main</artifactId>
-    <version>1.2.0</version>
+    <version>1.3.0</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -29,9 +29,10 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <general-libraries.version>1.2.0</general-libraries.version>
-        <database.version>1.1.0</database.version>
-        <tree.version>1.1.0</tree.version>
-        <visualizer.version>1.0.0</visualizer.version>
+        <database.version>1.2.0</database.version>
+        <tree.version>1.2.0</tree.version>
+        <visualizer.version>1.1.0</visualizer.version>
+        <experiments.version>1.1.0</experiments.version>
     </properties>
 
     <licenses>
@@ -77,6 +78,11 @@
                 <groupId>${project.groupId}</groupId>
                 <artifactId>visualizer</artifactId>
                 <version>${visualizer.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>experiments</artifactId>
+                <version>${experiments.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
@@ -238,6 +244,10 @@
                             <goals>
                                 <goal>sign</goal>
                             </goals>
+                            <configuration>
+                                <keyname>${gpg.keyname}</keyname>
+                                <passphraseServerId>${gpg.keyname}</passphraseServerId>
+                            </configuration>
                         </execution>
                     </executions>
                 </plugin>

@@ -5,13 +5,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>experiments</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <packaging>jar</packaging>
 
     <parent>
         <groupId>ch.heia-fr.isc.data-cockpit</groupId>
         <artifactId>data-cockpit-main</artifactId>
-        <version>1.2.0</version>
+        <version>1.3.0</version>
     </parent>
 
 
@@ -36,21 +36,25 @@
         <dependency>
             <groupId>ch.heia-fr.isc.data-cockpit</groupId>
             <artifactId>general-libraries</artifactId>
+            <version>${general-libraries.version}</version>
         </dependency>
 
         <dependency>
             <groupId>ch.heia-fr.isc.data-cockpit</groupId>
             <artifactId>tree</artifactId>
+            <version>${tree.version}</version>
         </dependency>
 
         <dependency>
             <groupId>ch.heia-fr.isc.data-cockpit</groupId>
             <artifactId>visualizer</artifactId>
+            <version>${visualizer.version}</version>
         </dependency>
 
         <dependency>
             <groupId>ch.heia-fr.isc.data-cockpit</groupId>
             <artifactId>database</artifactId>
+            <version>${database.version}</version>
         </dependency>
     </dependencies>
 
