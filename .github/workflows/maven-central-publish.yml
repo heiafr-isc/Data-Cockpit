@@ -94,7 +94,8 @@ jobs:
                         <password>${{ secrets.MAVEN_PASSWORD }}</password>
                     </server>
                 </servers>
-            </settings>" > config.xml
+            </settings>
+        " > config.xml
 
     - name: Deploy Parent POM
       run: mvn -B clean deploy -N -DskipTests -s config.xml -Dgpg.executable=gpg -Dgpg.passphrase="${{ secrets.GPG_PASSPHRASE }}" -Dgpg.use-agent=false -Dgpg.loopback=true
