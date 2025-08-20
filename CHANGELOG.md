@@ -2,9 +2,8 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 1.3.0 (2025.08.20)
 
-### 1.3.0
 Explicit versions in module dependencies have been added to avoid denied updates by Maven.
 
 
