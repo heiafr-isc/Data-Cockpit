@@ -19,6 +19,8 @@ body:
         - label: The Tree component
         - label: The Database component
         - label: The Visualizer component
+        - label: The General Libraries component
+        - label: The Experiment component
         - label: None of them. The problem is related to a project configuration or setting
         - label: I can't really tell
     validations:
