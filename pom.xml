@@ -4,7 +4,7 @@
 
     <groupId>ch.heia-fr.isc.data-cockpit</groupId>
     <artifactId>data-cockpit-main</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -28,9 +28,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <general-libraries.version>1.1.0</general-libraries.version>
+        <general-libraries.version>1.2.0</general-libraries.version>
         <database.version>1.1.0</database.version>
-        <tree.version>1.0.1</tree.version>
+        <tree.version>1.1.0</tree.version>
         <visualizer.version>1.0.0</visualizer.version>
     </properties>
 
