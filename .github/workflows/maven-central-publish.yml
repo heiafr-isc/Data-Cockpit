@@ -1,14 +1,16 @@
-name: Maven Central Publish
+name: Publish
 
 on:
-  workflow_run:
-    workflows: [Versioning Workflow]
+  pull_request:
     types:
-      - completed
-      
+      - closed
+    branches:
+      - main
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'changelog-update/')
 
     steps:
     - name: Checkout code
@@ -19,7 +21,7 @@ jobs:
       with:
         java-version: '11'
         distribution: 'temurin'
-        server-id: publisher
+        server-id: central
         settings-path: ${{ github.workspace }}
 
     - name: Check for Patch Update
@@ -42,14 +44,12 @@ jobs:
         fi
 
     - name: Import GPG key
-      if: env.IS_PATCH == 'false'
       run: |
         echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --import --pinentry-mode loopback
       env:
         GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
 
     - name: Extract modules from release notes
-      if: env.IS_PATCH == 'false'
       id: extract_data
       run: |
         RELEASE_URL="https://api.github.com/repos/${{ github.repository }}/releases/latest"
@@ -57,7 +57,7 @@ jobs:
         DESCRIPTION=$(echo "$RELEASE_NOTES" | jq -r '.body')
     
         # Define module names to search for (case insensitive)
-        MODULE_NAMES=("tree:" "database:" "visualizer:" "general_libraries:")
+        MODULE_NAMES=("tree:" "database:" "visualizer:" "general_libraries:" "experiments:")
     
         # Initialize MODULES variable
         MODULES=""
@@ -73,13 +73,15 @@ jobs:
     
         # Remove leading comma and sort modules alphabetically
         MODULES=$(echo "$MODULES" | sed 's/^,//' | tr ',' '\n' | sort -u | tr '\n' ',' | sed 's/,$//' | sed 's/^- //')
+        
+        # Remove duplicates
+        MODULES=$(echo "$MODULES" | tr ',' '\n' | sort -u | tr '\n' ',' | sed 's/,$//')
     
         # Print and set outputs
         echo "modules=$MODULES" >> $GITHUB_ENV
         echo "::set-output name=modules::$MODULES"
-        
+
     - name: Create temporary settings file
-      if: env.IS_PATCH == 'false'
       run: |
         echo "<settings xmlns=\"http://maven.apache.org/SETTINGS/1.0.0\"
                       xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"
@@ -87,15 +89,14 @@ jobs:
                       http://maven.apache.org/xsd/settings-1.0.0.xsd\">
                 <servers>
                     <server>
-                        <id>publisher</id>
+                        <id>central</id>
                         <username>${{ secrets.MAVEN_USERNAME }}</username>
                         <password>${{ secrets.MAVEN_PASSWORD }}</password>
                     </server>
                 </servers>
             </settings>" > config.xml
-            
+
     - name: Deploy Parent POM
-      if: env.IS_PATCH == 'false'
       run: mvn -B clean deploy -N -DskipTests -s config.xml -Dgpg.executable=gpg -Dgpg.passphrase="${{ secrets.GPG_PASSPHRASE }}" -Dgpg.use-agent=false -Dgpg.loopback=true
       env:
         MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
