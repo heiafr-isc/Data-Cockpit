@@ -1,0 +1,61 @@
+name: Release new version
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release:
+    if: github.event.pull_request.merged == true && !startsWith(github.event.pull_request.head.ref, 'changelog-update/')
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Update Changelog
+      id: update_changelog
+      run: |
+        # Extract version number from the changelog and keep it for later
+        NEW_VERSION=$(cat CHANGELOG.md | grep -A3 '^## Unreleased' | grep '^###'|sed -E 's/.*([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+        echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_ENV
+               
+        # Concatenate all unreleased versions into a release note
+        sed -i -e "/^## Unreleased$/s/.*/## $NEW_VERSION ($(date +%Y.%m.%d))/" -e "/^## $NEW_VERSION/,/^## /{/^### /d}" CHANGELOG.md
+                 
+        # Extract the newest version's release note
+        RELEASE_NOTE=$(cat CHANGELOG.md | sed -n '/^## /{n; :a; /^## /q; p; n; ba}')
+                 
+        # Export the extracted changelog as an environment variable
+        echo "RELEASE_NOTE<<EOF" >> $GITHUB_ENV
+        echo "$RELEASE_NOTE" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
+
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v7
+      with:
+        delete-branch: true
+        branch: "changelog-update/${{ env.NEW_VERSION }}"
+        title: "Merge into main: Release ${{ env.NEW_VERSION }}"
+        commit-message: "Automated update on CHANGELOG.md file for release version ${{ env.NEW_VERSION }}"
+        base: "main"
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ env.NEW_VERSION }} # Assuming NEW_VERSION is set earlier
+        release_name: Release ${{ env.NEW_VERSION }}
+        body: |
+           ${{ env.RELEASE_NOTE }}
+        draft: false
+        prerelease: false
