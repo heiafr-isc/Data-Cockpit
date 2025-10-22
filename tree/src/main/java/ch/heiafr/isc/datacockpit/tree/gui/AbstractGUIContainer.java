@@ -48,7 +48,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.border.EtchedBorder;
 
 import ch.heiafr.isc.datacockpit.general_libraries.utils.TypeParser;
-import ch.heiafr.isc.datacockpit.tree.gui.base.Javanco;
 import ch.heiafr.isc.datacockpit.tree.tree_model.AbstractChooseNode;
 import ch.heiafr.isc.datacockpit.tree.tree_model.AbstractChooseNode.ActionItem;
 import ch.heiafr.isc.datacockpit.tree.tree_model.AbstractChooseNode.ActionStructure;
@@ -227,14 +226,8 @@ public abstract class AbstractGUIContainer extends JPanel {
 		return ret;
 	}
 
-	public void setIcon(String string) {
-		try {
-			Javanco.initJavanco();
-		} catch (Exception e) {
-			throw new IllegalStateException(e);
-		}
-		String iconPath = System.getProperty("JAVANCO_HOME") + System.getProperty("file.separator") + "img/" + string;
-		ImageIcon image = new ImageIcon(iconPath);
+	public void setIcon(String path) {
+		ImageIcon image = new ImageIcon(ClassLoader.getSystemResource(path));
 		textLabel.setIcon(image);
 	}
 	

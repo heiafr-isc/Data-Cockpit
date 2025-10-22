@@ -39,6 +39,10 @@ import ch.heiafr.isc.datacockpit.tree.tree_model.TypableChooseNode;
 
 public class ParameterGUIContainer extends AbstractGUIContainer {
 
+	private static final String OPEN_FOLDER_ICON = "icons/openfolder.png";
+	private static final String CLOSED_FOLDER_ICON = "icons/closedfolder.png";
+	private static final String VOID_ICON = "icons/void.png";
+
 	/**
 	 * 
 	 */
@@ -108,12 +112,12 @@ public class ParameterGUIContainer extends AbstractGUIContainer {
 	public void refreshImpl() {
 		if (absNode.getChildCount() > 0) {
 			if (absNode.isExpanded()) {
-				super.setIcon("openfolder.png");
+				super.setIcon(OPEN_FOLDER_ICON);
 			} else {
-				super.setIcon("closedfolder.png");
+				super.setIcon(CLOSED_FOLDER_ICON);
 			}
 		} else {
-			super.setIcon("void.png");
+			super.setIcon(VOID_ICON);
 		}
 	}
 }
