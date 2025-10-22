@@ -59,15 +59,15 @@ public class LeafNodeGUIContainer extends AbstractGUIContainer {
 	public void refreshImpl() {
 		AbstractChooseNode parent = (AbstractChooseNode)absNode.getParent();
 		if (parent instanceof BooleanChooseNode) {
-			setIcon("boolean.png");
+			setIcon(BOOLEAN_ICON);
 		} else if (parent instanceof EnumChooseNode) {
-			setIcon("class.png");
+			setIcon(CLASS_ICON);
 		} else if (parent instanceof UntypableArrayInstanceNode) {
-			setIcon("class.png");
+			setIcon(CLASS_ICON);
 		} else if (parent instanceof ArrayChooseNode){
-			setIcon("other.png");
+			setIcon(OTHER_ICON);
 		} else if (parent instanceof ClassChooseNode) {
-			setIcon("other.png");
+			setIcon(OTHER_ICON);
 			// sanity check
 			if (!(absNode instanceof LeafChooseNode)) {
 				throw new IllegalStateException();
@@ -81,21 +81,27 @@ public class LeafNodeGUIContainer extends AbstractGUIContainer {
 		} else {
 			TypableChooseNode p = (TypableChooseNode)absNode.getParent();
 			if (p.isBoolean()) {
-				setIcon("boolean.png");
+				setIcon(BOOLEAN_ICON);
 			} else if (p.isInt()) {
-				setIcon("integer.png");
+				setIcon(INTEGER_ICON);
 			} else if (p.isClass()) {
-				setIcon("class.png");
+				setIcon(CLASS_ICON);
 			} else if (p.isDouble()) {
-				setIcon("double.png");
+				setIcon(DOUBLE_ICON);
 			} else if (p.isLong()) {
-				setIcon("long.png");
+				setIcon(LONG_ICON);
 			} else {
-				setIcon("other.png");
+				setIcon(OTHER_ICON);
 			}
 		}
 	}
-	
+
+	private static final String BOOLEAN_ICON = "icons/boolean.png";
+	private static final String INTEGER_ICON = "icons/integer.png";
+	private static final String DOUBLE_ICON = "icons/double.png";
+	private static final String LONG_ICON = "icons/long.png";
+	private static final String CLASS_ICON = "icons/class.png";
+	private static final String OTHER_ICON = "icons/other.png";
 
 }
 
