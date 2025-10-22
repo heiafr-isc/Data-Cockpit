@@ -21,7 +21,7 @@ body:
     id: problem
     attributes:
       label: What is the exact problem with the current documentation ?
-      description: Describe as precisly as possible where the problem is located. Explain what error, flaw or unclear information you spotted.
+      description: Describe as precisely as possible where the problem is located. Explain what error, flaw or unclear information you spotted.
       placeholder: eg. 30th line of the README file - "Example sentence ..."
     validations:
       required: false    
@@ -37,9 +37,9 @@ body:
   - type: textarea
     id: other
     attributes:
-      label: Other important informations or other kind of issue 
+      label: Other important information or other kind of issue
       description: If the previous fields do not suit your needs, please explain the situation here
-      placeholder: Any important additionnal information
+      placeholder: Any important additional information
     validations:
       required: false  
 

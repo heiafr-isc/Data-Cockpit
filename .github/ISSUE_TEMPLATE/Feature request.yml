@@ -7,7 +7,7 @@ body:
       value: |
         * We welcome any ideas or feature requests! It is helpful if you can explain exactly why the feature would be useful.
         * Please, make sure to have a look at the existing issues before creating a new one. Feel free to add comments to them.
-        * If you would like to contribute, please read the [contributions guide](https://github.com/NPerrenoud/testing/wiki/Contributiors-guideline).
+        * If you would like to contribute, please read the [contributions guide](https://github.com/heiafr-isc/Data-Cockpit/blob/main/CONTRIBUTING.md).
   - type: input
     id: Area
     attributes:

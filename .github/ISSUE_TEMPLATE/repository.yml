@@ -1,0 +1,65 @@
+
+name: Repository issues
+description: For any work to be done on the repository itself.
+labels: ["Status: Awaiting triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        * Before reporting a new issue please check and search in [List of existing issues](https://github.com/heiafr-isc/Data-Cockpit/issues) 
+        * If the issue is related to project configuration and first usage, check the [Getting Started](https://github.com/heiafr-isc/Data-Cockpit/wiki/Getting-Started) document. 
+        * If still experiencing the issue, please provide as many details as possible below about configuration, involved components and code.
+  - type: checkboxes
+    id: component
+    attributes:
+      label: On what repository components is the issue related?
+      description: You must check at least one of the options below to proceed.
+      options:
+        - label: Actions
+        - label: Metadata and information files
+        - label: Templates
+        - label: Organisation
+        - label: Project plan
+        - label: Code owners / maintainers lists
+        - label: Contribution guidelines / Code of conduct
+        - label: Security policies
+        - label: Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: involved-file
+    attributes:
+      label: What file(s) is/are involved ?
+      description: Please, let us know what file(s) requires an update
+      placeholder: eg. the README file, an issue template, a workflow file, ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What is the exact problem with the current file(s) ?
+      description: Describe as precisely as possible where the problem is located. Explain what error, flaw or unclear information you spotted.
+      placeholder: eg. outdated DIO in the codemeta.json file.
+    validations:
+       required: true
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: What is the suggestions you have to improve the current situation ?
+      description: Please, share your suggestion to improve the project
+      placeholder: eg. Correction suggestions...
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: I have checked existing issues, online documentation, and the Troubleshooting Guide
+      description: You agree to check all the resources above before opening a new issue.
+      options:
+        - label: I confirm I have checked existing issues, online documentation, and Troubleshooting guide.
+    validations:
+      required: true
