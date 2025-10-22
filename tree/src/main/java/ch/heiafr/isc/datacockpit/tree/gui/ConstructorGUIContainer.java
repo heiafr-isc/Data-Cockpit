@@ -50,6 +50,9 @@ public class ConstructorGUIContainer extends AbstractGUIContainer {
 
 	@Override
 	public void refreshImpl() {
-		super.setIcon("constructoricon.png");
+		super.setIcon(CONSTRUCTOR_ICON);
 	}
+
+	private static final String CONSTRUCTOR_ICON = "icons/constructoricon.png";
+
 }
