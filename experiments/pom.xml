@@ -16,13 +16,13 @@
 
 
     <name>Data-Cockpit Experiment</name>
-    <url>https://github.com/heiafr-isc/Data-Cockpit</url>
     <description>
         This project is a show-case of the Data-Cockpit program. The goal is to demonstrate a simple
         application of the different Data-Cockpit components once they are assembled.
         This project should help people to understand how to implement the Experiment interface, which will trigger
         the Tree iteration, the Database being populated and the visualization of the data offered by the Visualizer.
     </description>
+    <url>https://github.com/heiafr-isc/Data-Cockpit</url>
 
     <properties>
         <jar.finalName>${project.name}-${project.version}</jar.finalName>
@@ -30,6 +30,38 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
+
+    <licenses>
+        <license>
+            <name>GNU Lesser General Public License v3.0</name>
+            <url>https://www.gnu.org/licenses/lgpl-3.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Sébastien Rumley</name>
+            <email>sebastien.rumley@hefr.ch</email>
+            <organization>HEIA-FR</organization>
+            <organizationUrl>https://www.heia-fr.ch/</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <url>https://github.com/heiafr-isc/Data-Cockpit</url>
+        <connection>scm:git:https://github.com/heiafr-isc/Data-Cockpit</connection>
+        <developerConnection>scm:git:https://github.com/heiafr-isc/Data-Cockpit</developerConnection>
+    </scm>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/heiafr-isc/Data-Cockpit/issues</url>
+    </issueManagement>
+
+    <ciManagement>
+        <system>GitHub</system>
+        <url>https://github.com/heiafr-isc/Data-Cockpit/actions</url>
+    </ciManagement>
 
     <dependencies>
 
