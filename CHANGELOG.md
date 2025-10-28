@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### 1.3.1
+ 
+There was some remains of Javanco for loading icons in the visualiser. Icon loading is now made through the classLoader.
+ 
+ 
+- visualiser : Loading simplified
+ 
+
 ### 1.3.0
 Explicit versions in module dependencies have been added to avoid denied updates by Maven.
 
