@@ -99,6 +99,45 @@ We **love** pull requests! Before [forking the repo](https://help.github.com/en/
 
 - When writing comments, use properly constructed sentences, including punctuation.
 
+## :file_folder: Repository Branching Strategy
+
+This repository applies the [‘Feature branch’ branching strategy](https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workflow)
+
+### Explanation 
+
+New features and fixes must be applied to branches named after the issue they refer to, and merged into a `develop` branch. Several features or fixes can be accumulated into this `develop` branch, up until one or multiple maintainers decide to proceed to an official and stable release.
+
+The releases are published when the `develop` branch is merged into the `main` branch, triggering Workflows that proceed to automatic changes.
+
+Changes aiming for GitHub-related files or resources unrelated to the software behaviour are made through specific branches describing their scope, then merged into the `main` branch. Such changes do not trigger any release process. Their names can have the following values:
+- `hotfixes/<short-description>` for changes related to Workflows or critical bugs,
+- `docs/<short-description>` for changes related to static files
+
+### Contribution steps
+
+1) Contributors open an issue explaining why their changes should be integrated into the project,
+2) They create a new branch from the `develop` branch, with a name suited to `<issue-number>/<short-description>` (example, `94/fixing-lint` if the issue is n°94),
+3) They commit and push their changes,
+4) They open a Pull Request to the `develop` branch, and completely fill the template,
+5) Maintainers analyse and accept the Pull Request, if the changes follow the project goals.
+
+### Accepted contributions
+
+1) A workflow updates the [Changelog file](./CHANGELOG.md), adding the Pull Request information filled by the contributor in the `## Unreleased` section,
+2) The workflow ends by pushing the changes to develop.
+
+### New release
+
+After one or more contributions have been added on the `develop` branch, a release can be made by maintainers when they create a Pull Request from `develop` to `main`.
+
+1) A Pull Request is opened from `develop` to `main`,
+2) A workflow calculates the new release version based on the information in the changelog file by parsing all the changes made by the unreleased accepted Pull Requests and calculates the new semantic version (major/minor/patch) based on the previous version,
+3) The new version is applied to all `pom.xml` files,
+4) The changelog is adapted by creating a new section with the new version and date,
+5) A GitHub release is created based on the new release notes,
+6) A second workflow handles the build and deployment to the [Maven Central repository](https://central.sonatype.com/),
+7) If it meets expectations, the PR is validated by the maintainers.
+
 ## :memo: Writing Commit Messages
 
 Please [write a great commit message](https://chris.beams.io/posts/git-commit/).
