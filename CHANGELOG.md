@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### [PR 59](https://github.com/heiafr-isc/Data-Cockpit/pull/59)
+minor: 
+Simplified the way the visualiser is loaded by removing dependency on legacy Javanco class.
+
+- visualizer: Simplified the way the visualiser is loaded by removing dependency on legacy Javanco class.
+
 ## 1.3.0 (2025.08.20)
 
 Explicit versions in module dependencies have been added to avoid denied updates by Maven.
