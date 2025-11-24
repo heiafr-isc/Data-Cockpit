@@ -1,4 +1,4 @@
-name: Adapt versioning
+name: Update changelog
 
 on:
   pull_request:
@@ -12,24 +12,15 @@ permissions:
   pull-requests: write
 
 jobs:
-  update-versions:
-    if: github.event.pull_request.merged == true && !startsWith(github.event.pull_request.head.ref, 'version-update/')
+  update-changelog:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v3
-
-    - name: Set up JDK 11
-      uses: actions/setup-java@v2
+      uses: actions/checkout@v6
       with:
-        java-version: '11'
-        distribution: 'adopt'
-
-    - name: Install Python dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install lxml packaging
+        ref: 'develop'
 
     - name: Extract Module Updates from PR Description
       id: extract_updates
@@ -85,50 +76,16 @@ jobs:
         echo "Minor Modules: ${{ env.MINOR_MODULES }}"
         echo "Major Modules: ${{ env.MAJOR_MODULES }}"
 
-    - name: Update Patch Modules
-      if: env.PATCH_MODULES != ''
-      run: |
-        for module in $PATCH_MODULES; do
-          mvn -f $module/pom.xml build-helper:parse-version versions:set -DnewVersion='${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.nextIncrementalVersion}'
-        done
-
-    - name: Update Minor Modules
-      if: env.MINOR_MODULES != ''
-      run: |
-        for module in $MINOR_MODULES; do
-          mvn -f $module/pom.xml build-helper:parse-version versions:set -DnewVersion='${parsedVersion.majorVersion}.${parsedVersion.nextMinorVersion}.0'
-        done
-
-    - name: Update Major Modules
-      if: env.MAJOR_MODULES != ''
-      run: |
-        for module in $MAJOR_MODULES; do
-          mvn -f $module/pom.xml build-helper:parse-version versions:set -DnewVersion='${parsedVersion.nextMajorVersion}.0.0'
-        done
-
-    - name: Update Parent Properties
-      run: |
-        mvn versions:update-properties
-
     - name: Determine Overall Update Level
       id: update_level
       run: |
-        if [ -n "$MAJOR_MODULES" ]; then
-          echo "update_level=major" >> $GITHUB_ENV
-        elif [ -n "$MINOR_MODULES" ]; then
-          echo "update_level=minor" >> $GITHUB_ENV
+        if [ -n "${{ env.MAJOR_MODULES }}" ]; then
+          echo "UPDATE_LEVEL=major" >> $GITHUB_ENV
+        elif [ -n "${{ env.MINOR_MODULES }}" ]; then
+          echo "UPDATE_LEVEL=minor" >> $GITHUB_ENV
         else
-          echo "update_level=patch" >> $GITHUB_ENV
+          echo "UPDATE_LEVEL=patch" >> $GITHUB_ENV
         fi
-
-    - name: Run Python Script to Update Parent Version
-      run: |
-        NEW_VERSION=$(python3 update_parent_version.py ${{ env.update_level }})
-        echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_ENV
-
-    - name: Update Child Modules
-      run: |
-        mvn -N versions:update-child-modules
 
     - name: Check PR Description
       id: description-checker
@@ -139,28 +96,35 @@ jobs:
 
     - name: Update Changelog
       run: |
-        NEW_VERSION="${{ env.NEW_VERSION }}"
+        PR_ID=${{ github.event.pull_request.number }}
+        UPDATE_LEVEL="${{ env.UPDATE_LEVEL }}"
         PR_DESCRIPTION=$(jq -r '.pull_request.body' "$GITHUB_EVENT_PATH" | awk '/^## Description/,/-->/{flag=1; next} /^## / && flag{flag=0} flag')
         PR_CHANGELOG=$(jq -r '.pull_request.body' "$GITHUB_EVENT_PATH" | awk '/## Changelog Information/,/-->/ {found = 1; next} found')
-        DATE=$(date +'%Y.%m.%d')
     
-        echo "NEW_VERSION=${NEW_VERSION}"
+        echo "PR_ID=${PR_ID}"
+        echo "UPDATE_LEVEL=${UPDATE_LEVEL}"
         echo "PR_DESCRIPTION=${PR_DESCRIPTION}"
         echo "PR_CHANGELOG=${PR_CHANGELOG}"
-        echo "DATE=${DATE}"
         
         # Create a new section in CHANGELOG.md if no previous unreleased section exists
         sed -i '0,/^## /{/^## Unreleased/!s/^## /## Unreleased\n\n&/}' CHANGELOG.md
     
         # Insert entry into CHANGELOG.md under Unreleased section
-        echo -e "\n### ${NEW_VERSION}\n${PR_DESCRIPTION}\n${PR_CHANGELOG}" | sed -i '/## Unreleased/r /dev/stdin' CHANGELOG.md
+        echo -e "\n### [PR ${PR_ID}](https://github.com/heiafr-isc/Data-Cockpit/pull/${PR_ID})\n${UPDATE_LEVEL}: ${PR_DESCRIPTION}\n${PR_CHANGELOG}" | sed -i '/## Unreleased/r /dev/stdin' CHANGELOG.md
 
-    - name: Create Pull Request
-      uses: peter-evans/create-pull-request@v7
-      with:
-        delete-branch: true
-        branch: "version-update/${{ env.NEW_VERSION }}"
-        title: "Automated version update: ${{ env.NEW_VERSION }}"
-        base: "develop"
-        body: 'Automated update on module versions and CHANGELOG.md, based on PR #${{ github.event.pull_request.number }}.'
-        commit-message: 'Update CHANGELOG and module versions based on PR #${{ github.event.pull_request.number }}'
+    - name: Configure Git
+      run: |
+        git config --local user.name "github-actions[bot]"
+        git config --local user.email "13170944+GuibertLo@users.noreply.github.com"
+
+    - name: Commit & Push
+      run: |
+        if [[ -n "$(git status --porcelain)" ]]; then
+          git add .
+          git commit -m "github-actions[bot]: updating the changelog, automation of a post-merge into develop"
+          git push origin HEAD:develop
+        else
+          echo "No changes to commit"
+        fi
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
