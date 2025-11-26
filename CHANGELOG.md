@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### [PR 61](https://github.com/heiafr-isc/Data-Cockpit/pull/61)
+patch: 
+updated bcel library version
+
+
+- tree: bounced bel version
+
 ### [PR 59](https://github.com/heiafr-isc/Data-Cockpit/pull/59)
 minor: 
 Simplified the way the visualiser is loaded by removing dependency on legacy Javanco class.
