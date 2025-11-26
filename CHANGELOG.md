@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.4.1 (2025.11.26)
+
+### [PR 65](https://github.com/heiafr-isc/Data-Cockpit/pull/65)
+patch: Cleaned a bit the SmartDataPointCollector class
+
+- database: cleaned SmartDataPointCollector
+
 ## 1.4.0 (2025.11.26)
 
 ### [PR 61](https://github.com/heiafr-isc/Data-Cockpit/pull/61)
