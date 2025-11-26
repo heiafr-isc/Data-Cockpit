@@ -1,4 +1,4 @@
-name: Publish
+name: Deploy
 
 on:
   workflow_run:
@@ -52,7 +52,6 @@ jobs:
 
     - name: Deploy Parent POM And Modules
       run: |
-        export MAVEN_GPG_PASSPHRASE="${{ secrets.GPG_PASSPHRASE }}"
         mvn deploy -s config.xml -U
       env:
-        GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}

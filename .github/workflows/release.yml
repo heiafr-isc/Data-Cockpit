@@ -1,8 +1,8 @@
 name: New release
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
+  pull_request_review:
+    types: [submitted]
     branches:
       - main
 
@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   update-versions:
-    if: startsWith(github.event.pull_request.head.ref, 'develop')
+    if: startsWith(github.event.pull_request.head.ref, 'develop') && github.event.review.state == 'approved'
     runs-on: ubuntu-latest
 
     steps:
@@ -201,7 +201,7 @@ jobs:
         run: |
           if [[ -n "$(git status --porcelain)" ]]; then
             git add .
-            git commit -m "github-actions[bot]: changelog updated for a new release, automation of a post-merge into main"
+            git commit -m "github-actions[bot]: changelog changes because of new release, automation of a post-merge into main"
             git push origin HEAD:${{ github.event.pull_request.head.ref }}
           else
             echo "No changes to commit"
