@@ -1,0 +1,109 @@
+name: Publish
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+
+jobs:
+  release:
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'develop')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+        with:
+          ref: 'main'
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Retrieve Changelog
+        id: retrieve_changelog
+        run: |
+          # Extract the newest version's release note
+          RELEASE_NOTE=$(cat CHANGELOG.md | sed -n '/^## /{n; :a; /^## /q; p; n; ba}')
+          
+          # Export the extracted changelog as an environment variable
+          echo "RELEASE_NOTE<<EOF" >> $GITHUB_ENV
+          echo "$RELEASE_NOTE" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+
+      - name: Getting parent version
+        run: |
+          # Get version number
+          VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)    
+          # Store version
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          target_commitish: 'main'
+          body: |
+            ${{ env.RELEASE_NOTE }}
+          tag_name: ${{ env.VERSION }}
+          name: Release ${{ env.VERSION }}
+          make_latest: true
+          draft: false
+          prerelease: false
+
+
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v6
+      with:
+        ref: 'main'
+
+    - name: Set up JDK 11
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+        server-id: central
+        settings-path: ${{ github.workspace }}
+
+    - name: Import GPG key
+      run: |
+        echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --import --pinentry-mode loopback
+      env:
+        GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+
+    - name: Create temporary settings file
+      run: |
+        echo "<settings xmlns=\"http://maven.apache.org/SETTINGS/1.0.0\"
+                      xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"
+                      xsi:schemaLocation=\"http://maven.apache.org/SETTINGS/1.0.0
+                      http://maven.apache.org/xsd/settings-1.0.0.xsd\">
+                <servers>
+                    <server>
+                        <id>central</id>
+                        <username>${{ secrets.MAVEN_USERNAME }}</username>
+                        <password>${{ secrets.MAVEN_PASSWORD }}</password>
+                    </server>
+                </servers>
+            </settings>
+        " > config.xml
+      env:
+        MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+        MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+
+    - name: Deploy Parent POM And Modules
+      run: |
+        mvn deploy -s config.xml -U
+      env:
+        MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
