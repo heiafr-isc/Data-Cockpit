@@ -5,13 +5,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>database</artifactId>
-    <version>1.4.0</version>
+    <version>1.4.1</version>
     <packaging>jar</packaging>
 
     <parent>
         <groupId>ch.heia-fr.isc.data-cockpit</groupId>
         <artifactId>data-cockpit-main</artifactId>
-        <version>1.4.0</version>
+        <version>1.4.1</version>
     </parent>
 
     <name>Data-Cockpit Database</name>
