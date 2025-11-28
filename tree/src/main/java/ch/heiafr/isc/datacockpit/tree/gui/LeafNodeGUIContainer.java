@@ -41,8 +41,8 @@ import ch.heiafr.isc.datacockpit.tree.tree_model.UntypableArrayInstanceNode;
 
 public class LeafNodeGUIContainer extends AbstractGUIContainer {
 	
-	private static Color lightGreen = new Color(0.8f, 1f, 0.8f);
-	private static Color error = new Color(1f, 0.9f, 0.7f);	
+	private static final Color lightGreen = new Color(0.8f, 1f, 0.8f);
+	private static final Color error = new Color(1f, 0.9f, 0.7f);
 	/**
 	 * 
 	 */
@@ -96,12 +96,12 @@ public class LeafNodeGUIContainer extends AbstractGUIContainer {
 		}
 	}
 
-	private static final String BOOLEAN_ICON = "icons/boolean.png";
-	private static final String INTEGER_ICON = "icons/integer.png";
-	private static final String DOUBLE_ICON = "icons/double.png";
-	private static final String LONG_ICON = "icons/long.png";
-	private static final String CLASS_ICON = "icons/class.png";
-	private static final String OTHER_ICON = "icons/other.png";
+	private static final String BOOLEAN_ICON = "/icons/boolean.png";
+	private static final String INTEGER_ICON = "/icons/integer.png";
+	private static final String DOUBLE_ICON = "/icons/double.png";
+	private static final String LONG_ICON = "/icons/long.png";
+	private static final String CLASS_ICON = "/icons/class.png";
+	private static final String OTHER_ICON = "/icons/other.png";
 
 }
 

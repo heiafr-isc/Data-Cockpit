@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.4.2 (2025.11.28)
+
+### [PR 69](https://github.com/heiafr-isc/Data-Cockpit/pull/69)
+patch: Fixed the not starting problem
+
+- tree: corrected icons bug #68 
+
 ## 1.4.1 (2025.11.26)
 
 ### [PR 65](https://github.com/heiafr-isc/Data-Cockpit/pull/65)
