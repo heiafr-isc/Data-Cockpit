@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 1.4.3 (2025.11.28)
 
 ### [PR 73](https://github.com/heiafr-isc/Data-Cockpit/pull/73)
 patch: working again on the startup problem
