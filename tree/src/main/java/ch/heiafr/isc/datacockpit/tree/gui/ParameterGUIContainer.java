@@ -29,7 +29,6 @@ package ch.heiafr.isc.datacockpit.tree.gui;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.LayoutManager;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
@@ -39,16 +38,16 @@ import ch.heiafr.isc.datacockpit.tree.tree_model.TypableChooseNode;
 
 public class ParameterGUIContainer extends AbstractGUIContainer {
 
-	private static final String OPEN_FOLDER_ICON = "icons/openfolder.png";
-	private static final String CLOSED_FOLDER_ICON = "icons/closedfolder.png";
-	private static final String VOID_ICON = "icons/void.png";
+	private static final String OPEN_FOLDER_ICON = "/icons/openfolder.png";
+	private static final String CLOSED_FOLDER_ICON = "/icons/closedfolder.png";
+	private static final String VOID_ICON = "/icons/void.png";
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 456L;
 	
-	private static Color lightBlue = new Color(0.92f, 0.92f, 0.97f);
+	private final static Color lightBlue = new Color(0.92f, 0.92f, 0.97f);
 	
 
 	public ParameterGUIContainer(final AbstractParameterChooseNode node, LayoutManager man, int prefix) {
@@ -58,33 +57,20 @@ public class ParameterGUIContainer extends AbstractGUIContainer {
 		this.setBackground(lightBlue);		
 		if (node.isRoot()) {
 			JButton save = new JButton("Save");
-			ActionListener a = new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					node.getContainingTreeModel().saveFile();
-				}
-			};
+			ActionListener a = e -> node.getContainingTreeModel().saveFile();
 			save.setFocusable(false);
 			save.addActionListener(a);
 			
 			JButton saveAs = new JButton("Save as...");
-			a = new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					String s = JOptionPane.showInputDialog("Give a file name", "tree");
-					node.getContainingTreeModel().saveFile(s);
-				}
-			};
+			a = e -> {
+                String s = JOptionPane.showInputDialog("Give a file name", "tree");
+                node.getContainingTreeModel().saveFile(s);
+            };
 			saveAs.setFocusable(false);
 			saveAs.addActionListener(a);	
 			
 			JButton deploy = new JButton("Deploy tree");
-			a = new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					node.setAllExpanded();
-				}
-			};
+			a = e -> node.setAllExpanded();
 			deploy.setFocusable(false);
 			deploy.addActionListener(a);
 			
@@ -98,12 +84,7 @@ public class ParameterGUIContainer extends AbstractGUIContainer {
 	protected JButton getAddButton() {
 		JButton add = new JButton("Add");
 		add.setPreferredSize(new Dimension(60, 20));
-		add.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				absNode.actionPerformed(TypableChooseNode.ADD);
-			}
-		});
+		add.addActionListener(arg0 -> absNode.actionPerformed(TypableChooseNode.ADD));
 		add.setFocusable(false);
 		return add;
 	}
