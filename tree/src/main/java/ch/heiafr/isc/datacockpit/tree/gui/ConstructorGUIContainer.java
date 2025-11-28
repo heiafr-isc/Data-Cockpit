@@ -32,7 +32,7 @@ import ch.heiafr.isc.datacockpit.tree.tree_model.ConstructorChooseNode;
 
 public class ConstructorGUIContainer extends AbstractGUIContainer {
 
-	private static Color lightYellow = new Color(1f, 1f, 0.8f);
+	private static final Color lightYellow = new Color(1f, 1f, 0.8f);
 
 	
 	/**
@@ -53,6 +53,6 @@ public class ConstructorGUIContainer extends AbstractGUIContainer {
 		super.setIcon(CONSTRUCTOR_ICON);
 	}
 
-	private static final String CONSTRUCTOR_ICON = "icons/constructoricon.png";
+	private static final String CONSTRUCTOR_ICON = "/icons/constructoricon.png";
 
 }
