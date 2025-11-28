@@ -31,8 +31,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.LayoutManager;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
@@ -65,7 +63,7 @@ public abstract class AbstractGUIContainer extends JPanel {
 	
 	private static final long serialVersionUID = 1L;
 	
-	protected transient static java.awt.Font defaultFont = new java.awt.Font("Arial", Font.BOLD, 11);
+	protected static java.awt.Font defaultFont = new java.awt.Font("Arial", Font.BOLD, 11);
 	protected transient FontMetrics defaultFontMetrics;
 	
 	protected final AbstractChooseNode absNode;
@@ -171,12 +169,7 @@ public abstract class AbstractGUIContainer extends JPanel {
 	private JMenuItem buildItem(final ActionItem item, final AbstractChooseNode node) {
 		JMenuItem menuItem = new JMenuItem(item.text);
 		menuItem.setFont(menuFont);
-		menuItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				node.actionPerformed(item.actionName);
-			}
-		});
+		menuItem.addActionListener(arg0 -> node.actionPerformed(item.actionName));
 		return menuItem;
 	}	
 	
@@ -188,22 +181,22 @@ public abstract class AbstractGUIContainer extends JPanel {
 	}
 	
 	String tablizeLinear(String s) {	
-		ArrayList<String> ret = tablize(s, maxLength);
+		ArrayList<String> ret = tablize(s);
 		StringBuilder sb = new StringBuilder();
 		for (String str : ret) {
-			sb.append( str + "<br>");
+			sb.append(str).append("<br>");
 		}
 		return sb.toString();		
 	}
 	
-	ArrayList<String> tablize(String s, int maxLength) {
+	ArrayList<String> tablize(String s) {
 		char[] breakers = new char[]{' ', '.'};
-		ArrayList<String> ret = new ArrayList<String>();
-		if (s.length() <= maxLength) {
+		ArrayList<String> ret = new ArrayList<>();
+		if (s.length() <= AbstractGUIContainer.maxLength) {
 			ret.add(s);
 			return ret;
 		}
- 		int currentIndex = maxLength;
+ 		int currentIndex = AbstractGUIContainer.maxLength;
 		int previousIndex = 0;
 		int breakerIndex = 0;
 		while(currentIndex < s.length()) {
@@ -214,7 +207,7 @@ public abstract class AbstractGUIContainer extends JPanel {
 					ret.add(sub);
 				//	s = s.substring(i+1, s.length()-1);
 					previousIndex = i;
-					currentIndex = i+maxLength;
+					currentIndex = i+ AbstractGUIContainer.maxLength;
 					break;
 				}
 			}
@@ -227,7 +220,7 @@ public abstract class AbstractGUIContainer extends JPanel {
 	}
 
 	public void setIcon(String path) {
-		ImageIcon image = new ImageIcon(ClassLoader.getSystemResource(path));
+		ImageIcon image = new ImageIcon(this.getClass().getResource(path));
 		textLabel.setIcon(image);
 	}
 	
