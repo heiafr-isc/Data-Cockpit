@@ -34,7 +34,7 @@ public class ObjectDefinition extends AbstractDefinition {
 	
 	private static final long serialVersionUID = 1L;
 	ArrayList<AbstractDefinition> list;
-	String constructorDef;
+	final String constructorDef;
 	
 	public ObjectDefinition(String className) {	
 		this(className, null);
@@ -47,7 +47,7 @@ public class ObjectDefinition extends AbstractDefinition {
 	
 	private void initList() {
 		if (list == null) {
-			list = new ArrayList<AbstractDefinition>();
+			list = new ArrayList<>();
 		}
 	}
 	
@@ -58,7 +58,7 @@ public class ObjectDefinition extends AbstractDefinition {
 	}
 
 
-	protected Class getDefinedType(ClassLoader loader) throws ClassNotFoundException {
+	protected Class<?> getDefinedType(ClassLoader loader) throws ClassNotFoundException {
 		if (constructorDef != null) {
 			try {
 				return Class.forName(def, false, loader);
@@ -66,7 +66,7 @@ public class ObjectDefinition extends AbstractDefinition {
 			catch (ClassNotFoundException e) {
 				int index = def.lastIndexOf(".");
 				String newName = def.substring(0, index);
-				newName = newName + "$" + def.substring(index+1, def.length());
+				newName = newName + "$" + def.substring(index+1);
 				return Class.forName(newName, false, loader);
 			}
 		} else {
@@ -74,15 +74,15 @@ public class ObjectDefinition extends AbstractDefinition {
 		}
 	}	
 	
-	protected Class getDefinedClass(ClassLoader loader) throws ClassNotFoundException {
+	protected Class<?> getDefinedClass(ClassLoader loader) throws ClassNotFoundException {
 		if (constructorDef != null) {
 			return Class.forName(constructorDef, false, loader);
 		} else return getDefinedType(loader);
 	}
 	
-	private Class[] getParameterTypes(ClassLoader loader) throws ClassNotFoundException {
+	private Class<?>[] getParameterTypes(ClassLoader loader) throws ClassNotFoundException {
 		if (list != null) {
-			Class[] types = new Class[list.size()];
+			Class<?>[] types = new Class[list.size()];
 			for (int i = 0 ; i < list.size(); i++) {
 				ObjectDefinition defin = (ObjectDefinition)list.get(i);
 				types[i] = defin.getDefinedType(loader);
@@ -102,9 +102,9 @@ public class ObjectDefinition extends AbstractDefinition {
 	
 	public void localToString(String prefix, StringBuilder sb) {
 		if (constructorDef != null) {
-			sb.append(prefix + "-" + def + " -- " + constructorDef + "\r\n");
+			sb.append(prefix).append("-").append(def).append(" -- ").append(constructorDef).append("\r\n");
 		} else {
-			sb.append(prefix + "-" + def + "\r\n");
+			sb.append(prefix).append("-").append(def).append("\r\n");
 		}
 		if (list != null) {
 			for (AbstractDefinition d : list) {
@@ -123,6 +123,6 @@ class StringDefinition extends AbstractDefinition {
 	}
 	
 	void localToString(String prefix, StringBuilder sb) {
-		sb.append(prefix + "-" + def + "\r\n");
+		sb.append(prefix).append("-").append(def).append("\r\n");
 	}
 }

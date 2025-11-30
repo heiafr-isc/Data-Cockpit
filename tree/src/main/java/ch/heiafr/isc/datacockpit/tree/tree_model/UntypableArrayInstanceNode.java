@@ -42,11 +42,13 @@ public class UntypableArrayInstanceNode extends ClassChooseNode {
 
 
 	private static final long serialVersionUID = 1L;
-	private Class<?> arrayClass;
+	private final Class<?> arrayClass;
 	
-	public UntypableArrayInstanceNode(Class<?> c,
-			ObjectConstuctionTreeModel<?> containingTree,
-			Map<String, String> annotationMap, boolean checkDef) throws Exception {
+	public UntypableArrayInstanceNode(
+			Class<?> c,
+			ObjectConstructionTreeModel<?> containingTree,
+			Map<String, String> annotationMap,
+			boolean checkDef) {
 		super(c, annotationMap, containingTree, checkDef);
 		arrayClass = c;
 		checkConfigured();
@@ -54,9 +56,9 @@ public class UntypableArrayInstanceNode extends ClassChooseNode {
 
 	@Override
 	public List<ActionItem> getActions() {
-		List<ActionItem> toReturn = new ArrayList<ActionItem>();
+		List<ActionItem> toReturn = new ArrayList<>();
 		try {
-			this.menuItems = new HashMap<String, Object>();
+			this.menuItems = new HashMap<>();
 			if (arrayClass.equals(Class.class)) {
 				String clastype = annotationMap.get("ParamName.abstractClass");
 				buildClassMenu(toReturn, clastype);
@@ -96,7 +98,7 @@ public class UntypableArrayInstanceNode extends ClassChooseNode {
 			if (key.equals("suppress")) {
 				((AbstractChooseNode)this.getParent()).removeChild(this);
 			} else if (parameterType.equals("java.lang.Class")) {
-				Class idClass = Class.forName(c.toString());
+				Class<?> idClass = Class.forName(c.toString());
 				newNode = new LeafChooseNode(idClass, getContainingTreeModel());
 			}  else if (c instanceof Constructor<?>) {
 				Constructor<?> cons = (Constructor<?>)c;
@@ -105,7 +107,7 @@ public class UntypableArrayInstanceNode extends ClassChooseNode {
 				this.removeAllChildren();
 			} else if (key.equals("NULL")) {
 				newNode = new LeafChooseNode(null, getContainingTreeModel());
-			} else if (c instanceof Object) {
+			} else if (c != null) {
 				newNode = new LeafChooseNode(c, getContainingTreeModel());
 			}
 		}
@@ -135,7 +137,7 @@ public class UntypableArrayInstanceNode extends ClassChooseNode {
 	public String getText() {
 
 		
-		return "Flat array of type " + ((Class)getUserObject()).getSimpleName() + " with " + getNumberOfChildInstances() + " elements";
+		return "Flat array of type " + ((Class<?>)getUserObject()).getSimpleName() + " with " + getNumberOfChildInstances() + " elements";
 	}
 	
 	@Override
@@ -193,8 +195,8 @@ public class UntypableArrayInstanceNode extends ClassChooseNode {
 	public void cleanUp() {}
 	
 	@Override
-	public Iterator<Pair<Object, ObjectRecipe>> iterator() {
-		Iterator<Pair<Object, ObjectRecipe>> ret = new Iterator<Pair<Object, ObjectRecipe>>() {
+	public Iterator<Pair<Object, ObjectRecipe<?>>> iterator() {
+		return new Iterator<Pair<Object, ObjectRecipe<?>>>() {
 
 			private boolean delivered = false;
 
@@ -204,9 +206,9 @@ public class UntypableArrayInstanceNode extends ClassChooseNode {
 			}
 
 			@Override
-			public Pair<Object, ObjectRecipe> next() {
+			public Pair<Object, ObjectRecipe<?>> next() {
 				this.delivered = true;
-				return new Pair<Object, ObjectRecipe>(createArray(), null);
+				return new Pair<>(createArray(), null);
 			}
 
 			@Override
@@ -214,14 +216,13 @@ public class UntypableArrayInstanceNode extends ClassChooseNode {
 				throw new UnsupportedOperationException();
 			}
 		};
-		return ret;
 	}
 	
 	protected Object createArray() {
 		Object newArray = Array.newInstance(arrayClass, getNumberOfChildInstances());
 		int index = 0;
 		for (AbstractChooseNode child : this.getChilds()) {
-			for (Pair<Object, ObjectRecipe> pair : child) {
+			for (Pair<Object, ObjectRecipe<?>> pair : child) {
 				Array.set(newArray, index, pair.getFirst());
 				index++;
 			}
@@ -236,9 +237,10 @@ public class UntypableArrayInstanceNode extends ClassChooseNode {
 
 	@Override
 	protected AbstractParameterChooseNode paremeterChooseNodeClone(
-			Class<?> userObject, Map<String, String> annotationMap2,
-			ObjectConstuctionTreeModel<?> containingTreeModel, boolean b)
-			throws Exception {
+			Class<?> userObject,
+			Map<String, String> annotationMap2,
+			ObjectConstructionTreeModel<?> containingTreeModel,
+			boolean b) {
 		return new UntypableArrayInstanceNode(userObject, containingTreeModel, annotationMap2, b);
 	}	
 		

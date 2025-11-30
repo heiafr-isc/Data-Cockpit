@@ -46,7 +46,7 @@ import ch.heiafr.isc.datacockpit.general_libraries.logging.Logger;
 
 public class ConstructorChooseNode extends AbstractChooseNode {
 	
-	private transient final static Logger logger = new Logger(ConstructorChooseNode.class);
+	private final static Logger logger = new Logger(ConstructorChooseNode.class);
 
 	private static final long serialVersionUID = 3904434855844480533L;
 	transient Class<?> constructedClass;
@@ -58,12 +58,16 @@ public class ConstructorChooseNode extends AbstractChooseNode {
 	public boolean loadFailed = false;
 	
 
-	protected ConstructorChooseNode(Constructor<?> c, Class<?> cl,
-			ObjectConstuctionTreeModel containingTree, final String def, boolean checkDef) throws Exception {
+	protected ConstructorChooseNode(
+			Constructor<?> c,
+			Class<?> cl,
+			ObjectConstructionTreeModel<?> containingTree,
+			final String def,
+			boolean checkDef) {
 		super(containingTree);
 		this.setUserObject(c);
 		this.constructedClass = cl;
-		this.pointed = new ArrayList<ConstructorNodeChooserPointer>();
+		this.pointed = new ArrayList<>();
 		final Annotation[][] annotations = this.getConstructor().getParameterAnnotations();
 		Class<?>[] parameters = this.getConstructor().getParameterTypes();
 		if (annotations.length != parameters.length) {
@@ -136,8 +140,8 @@ public class ConstructorChooseNode extends AbstractChooseNode {
 	private boolean addParameterChooseNode(
 			Class<?> param, 
 			Map<String, String> parsedAnnot, 
-			ObjectConstuctionTreeModel<?> tree, 
-			boolean checkDef) throws Exception {
+			ObjectConstructionTreeModel<?> tree,
+			boolean checkDef) {
 		AbstractChooseNode an;
 		if (param.isArray()) {
 			an = new ArrayChooseNode(param, parsedAnnot, tree, checkDef);		
@@ -177,18 +181,20 @@ public class ConstructorChooseNode extends AbstractChooseNode {
 	public String getText() {
 		Constructor<?> c = getConstructor();
 		String name = getName();
-		String params = "(";
+		StringBuilder params = new StringBuilder("(");
 		Annotation[][] annotations = c.getParameterAnnotations();
 		int i = 0;
 		for (Class<?> param : c.getParameterTypes()) {
 			String nameAnnotation = parseAnnotations(annotations[i]).get("ParamName.name()");
-			params += (i == 0 ? "" : ", ") + parseName(param.getName())
-			+ (nameAnnotation == null ? "" : nameAnnotation);
-			++i;
+			params
+					.append(i == 0 ? "" : ", ")
+					.append(parseName(param.getName()))
+					.append(nameAnnotation == null ? "" : nameAnnotation);
+			i++;
 		}
-		params += ")";
+		params.append(")");
 		int createdValue = getCreatedValue();
-		String value = createdValue > 0 ? ""+ createdValue + " : " : "";
+		String value = createdValue > 0 ? createdValue + " : " : "";
 		
 		return value + name + params;
 	}
@@ -196,7 +202,7 @@ public class ConstructorChooseNode extends AbstractChooseNode {
 	@Override
 	public void actionPerformed(String key) 	{
 
-		ObjectConstuctionTreeModel model = getContainingTreeModel();
+		ObjectConstructionTreeModel<?> model = getContainingTreeModel();
 		removeConstructedConstructors();
 		try {
 			model.removeNodeFromParent(this);
@@ -256,7 +262,7 @@ public class ConstructorChooseNode extends AbstractChooseNode {
 	}
 
 	public List<ActionItem> getActions() {
-		List<ActionItem> l = new ArrayList<ActionItem>(1);
+		List<ActionItem> l = new ArrayList<>(1);
 		String text = "Suppress Constructor";
 		int nbPointed = this.pointed.size();
 		text += nbPointed > 0 ? " + " + nbPointed + " other(s) pointing instances" : "";
@@ -331,13 +337,13 @@ public class ConstructorChooseNode extends AbstractChooseNode {
 	}
 
 	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
-		this.containingTreeModel = (ObjectConstuctionTreeModel<?>)in.readObject();
+		this.containingTreeModel = (ObjectConstructionTreeModel<?>)in.readObject();
 		this.constructedClass = (Class<?>) in.readObject();
 		Class<?> declaringClass = (Class<?>)in.readObject();
 		Class<?>[] params = (Class<?>[])in.readObject();
 		this.createdValue = in.readInt();
 		int nb_pointed = in.readInt();
-		pointed = new ArrayList<ConstructorNodeChooserPointer>(nb_pointed);
+		pointed = new ArrayList<>(nb_pointed);
 		for (int i=0; i<nb_pointed; ++i) {
 			pointed.add((ConstructorNodeChooserPointer)in.readObject());
 		}
@@ -361,7 +367,7 @@ public class ConstructorChooseNode extends AbstractChooseNode {
 	}
 
 	@Override
-	public Iterator<Pair<Object, ObjectRecipe>> iterator() {
+	public Iterator<Pair<Object, ObjectRecipe<?>>> iterator() {
 		if (this.firstAcessed == null) {
 			this.currentIterator = new SpecialIterator();
 		}
@@ -369,6 +375,7 @@ public class ConstructorChooseNode extends AbstractChooseNode {
 	}
 	
 	@Override
+	// Issue github #81
 	public Object clone() {
 		try {
 			ConstructorChooseNode ret = new ConstructorChooseNode(this.getConstructor(), this.constructedClass, getContainingTreeModel(), null,  false); 
@@ -402,17 +409,17 @@ public class ConstructorChooseNode extends AbstractChooseNode {
 		
 	}
 
-	class SpecialIterator implements Iterator<Pair<Object, ObjectRecipe>> {
+	class SpecialIterator implements Iterator<Pair<Object, ObjectRecipe<?>>> {
 
-		private Object[] currentParams;
+		private final Object[] currentParams;
 		Object currentIteratorObject;
 		private boolean first;
 		boolean hasNext;
 		private boolean delivered;
-		private int paramSize;
-		private List<Iterator<Pair<Object, ObjectRecipe>>> iterators;
-		private Constructor localCons;
-		Pair<Object, ObjectRecipe> pair;
+		private final int paramSize;
+		private final List<Iterator<Pair<Object, ObjectRecipe<?>>>> iterators;
+		private final Constructor<?> localCons;
+		Pair<Object, ObjectRecipe<?>> pair;
 
 		public SpecialIterator() {
 			if (firstAcessed == null) {
@@ -423,14 +430,14 @@ public class ConstructorChooseNode extends AbstractChooseNode {
 			this.hasNext = true;
 			this.delivered = false;
 			this.paramSize = (getChildCount() > 0 ? children.size() : 0) ;
-			this.iterators =  new ArrayList<Iterator<Pair<Object, ObjectRecipe>>>();
+			this.iterators =  new ArrayList<>();
 			this.localCons = getConstructor();
 			this.currentParams = new Object[this.paramSize];
 			if (this.paramSize > 0) {
 				int i = 0;
 				for (Object param : children) {
 					if (((AbstractParameterChooseNode) param).configured) {
-						Iterator<Pair<Object, ObjectRecipe>> iteratorForParamI = ((AbstractChooseNode) param).iterator();
+						Iterator<Pair<Object, ObjectRecipe<?>>> iteratorForParamI = ((AbstractChooseNode) param).iterator();
 						iterators.add(iteratorForParamI);
 						if (iteratorForParamI.hasNext()){
 							this.currentParams[i] = iteratorForParamI.next().getFirst();
@@ -453,7 +460,7 @@ public class ConstructorChooseNode extends AbstractChooseNode {
 		}
 
 		@Override
-		public Pair<Object, ObjectRecipe> next() {
+		public Pair<Object, ObjectRecipe<?>> next() {
 			if (firstAcessed != null && firstAcessed){
 				return findNext();
 			} else {
@@ -462,24 +469,20 @@ public class ConstructorChooseNode extends AbstractChooseNode {
 			}
 		}
 
-		Pair<Object, ObjectRecipe> findNext() {
-			/*if (currentParams[0].getClass().getSimpleName().equals("SimplePowerRequiredModel")) {
-				int stop = 0;
-				System.out.println("iewru");
-			}*/
+		Pair<Object, ObjectRecipe<?>> findNext() {
 			boolean changed = this.first;
 			int i = 0;
 			while (!changed) {
-				Iterator<Pair<Object, ObjectRecipe>> it = this.iterators.get(i);
+				Iterator<Pair<Object, ObjectRecipe<?>>> it = this.iterators.get(i);
 				if (it.hasNext()) {
-					Pair<Object, ObjectRecipe> pair = it.next();
+					Pair<Object, ObjectRecipe<?>> pair = it.next();
 					this.currentParams[i] = pair.getFirst();
 					changed = true;
 				} else {
 					((AbstractChooseNode)children.get(i)).resetIterators();
 					this.iterators.set(i, ((AbstractChooseNode)children.get(i)).iterator());
 					
-					Pair<Object, ObjectRecipe> pair = this.iterators.get(i).next();
+					Pair<Object, ObjectRecipe<?>> pair = this.iterators.get(i).next();
 					this.currentParams[i] = pair.getFirst();	
 					++i;
 				}
@@ -487,20 +490,19 @@ public class ConstructorChooseNode extends AbstractChooseNode {
 			this.checkNext();
 			this.first = false;
 			try {
-				for (int h = 0 ; h < this.currentParams.length ; h++) {
-					if (currentParams[h] instanceof WrongExperimentException) {
-						return new Pair<Object, ObjectRecipe>(currentParams[h], null);
-					}
-				}
+                for (Object currentParam : this.currentParams) {
+                    if (currentParam instanceof WrongExperimentException) {
+                        return new Pair<>(currentParam, null);
+                    }
+                }
 				this.currentIteratorObject = localCons.newInstance(this.currentParams);
-				@SuppressWarnings("unchecked")
-				ObjectRecipe<?> recipe = new ObjectRecipe(localCons, this.currentParams);
-				pair = new Pair<Object, ObjectRecipe>(this.currentIteratorObject, recipe);
+				ObjectRecipe<?> recipe = new ObjectRecipe<>(localCons, this.currentParams);
+				pair = new Pair<>(this.currentIteratorObject, recipe);
 				return pair;
 			} catch (InvocationTargetException e) {
 				if (e.getCause() instanceof WrongExperimentException) {
 					System.out.print("next");
-					return new Pair<Object, ObjectRecipe>(e.getCause(), null);
+					return new Pair<>(e.getCause(), null);
 				} else {
 					throw new IllegalStateException("Potentiall trying to run a constructor not public or erroneous", e.getCause());
 				}
@@ -514,6 +516,7 @@ public class ConstructorChooseNode extends AbstractChooseNode {
 			this.hasNext = false;
 			int i = 0;
 			while (!this.hasNext && i < this.paramSize) {
+				// github issue #83
 				this.hasNext = this.hasNext || this.iterators.get(i).hasNext();
 				++i;
 			}

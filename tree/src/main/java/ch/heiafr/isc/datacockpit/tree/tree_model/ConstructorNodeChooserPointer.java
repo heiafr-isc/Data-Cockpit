@@ -47,7 +47,7 @@ public class ConstructorNodeChooserPointer extends AbstractChooseNode implements
 	public transient ConstructorChooseNode superInstance;
 	public boolean isCartesianEnabled = false;
 	
-	protected ConstructorNodeChooserPointer(ObjectConstuctionTreeModel tree, ConstructorChooseNode node) {
+	protected ConstructorNodeChooserPointer(ObjectConstructionTreeModel<?> tree, ConstructorChooseNode node) {
 		super(tree);
 		this.superInstance = node;
 		this.superInstance.pointed.add(this);
@@ -75,13 +75,13 @@ public class ConstructorNodeChooserPointer extends AbstractChooseNode implements
 	}
 	
 	@Override
-	public Iterator<Pair<Object, ObjectRecipe>> iterator() {
-		Iterator<Pair<Object, ObjectRecipe>> ret;
+	public Iterator<Pair<Object, ObjectRecipe<?>>> iterator() {
+		Iterator<Pair<Object, ObjectRecipe<?>>> ret;
 		if (!isCartesianEnabled)
-			ret = new Iterator<Pair<Object, ObjectRecipe>>() {
+			ret = new Iterator<Pair<Object, ObjectRecipe<?>>>() {
 
 				boolean delivered = false;
-				boolean first;
+				final boolean first;
 
 				{
 					if (superInstance.firstAcessed == null) {
@@ -103,7 +103,7 @@ public class ConstructorNodeChooserPointer extends AbstractChooseNode implements
 				}
 
 				@Override
-				public Pair<Object, ObjectRecipe> next() {
+				public Pair<Object, ObjectRecipe<?>> next() {
 					if (first){
 						return superInstance.currentIterator.findNext();
 					}
@@ -123,14 +123,14 @@ public class ConstructorNodeChooserPointer extends AbstractChooseNode implements
 		return ret;
 	}
 	
-	private class PointerIterator implements Iterator<Pair<Object, ObjectRecipe>> {
+	private class PointerIterator implements Iterator<Pair<Object, ObjectRecipe<?>>> {
 
-		private Object[] currentParams;
+		private final Object[] currentParams;
 		private boolean first;
 		private boolean hasNext;
-		private int paramSize;
-		private List<Iterator<Pair<Object, ObjectRecipe>>> iterators;
-		private List<AbstractChooseNode> children;
+		private final int paramSize;
+		private final List<Iterator<Pair<Object, ObjectRecipe<?>>>> iterators;
+		private final List<AbstractChooseNode> children;
 
 		public PointerIterator() {
 			
@@ -139,7 +139,7 @@ public class ConstructorNodeChooserPointer extends AbstractChooseNode implements
 			if (superInstance.getChildCount() > 0) children = superInstance.getChilds();
 			else children = null;
 			this.paramSize = ( children != null ? children.size() : 0) ;
-			this.iterators =  new ArrayList<Iterator<Pair<Object, ObjectRecipe>>>();
+			this.iterators =  new ArrayList<>();
 			this.currentParams = new Object[this.paramSize];
 			if (this.paramSize > 0) {
 				int i = 0;
@@ -161,15 +161,15 @@ public class ConstructorNodeChooserPointer extends AbstractChooseNode implements
 		}
 
 		@Override
-		public Pair<Object, ObjectRecipe> next() {
+		public Pair<Object, ObjectRecipe<?>> next() {
 			return findNext();
 		}
 
-		private Pair<Object, ObjectRecipe> findNext() {
+		private Pair<Object, ObjectRecipe<?>> findNext() {
 			boolean changed = this.first;
 			int i = 0;
 			while (!changed) {
-				Iterator<Pair<Object, ObjectRecipe>> it = this.iterators.get(i);
+				Iterator<Pair<Object, ObjectRecipe<?>>> it = this.iterators.get(i);
 				if (it.hasNext()) {
 					this.currentParams[i] = it.next();
 					changed = true;
@@ -186,12 +186,11 @@ public class ConstructorNodeChooserPointer extends AbstractChooseNode implements
 			this.checkNext();
 			this.first = false;
 			try {
-				
-				@SuppressWarnings("unchecked")
-				ObjectRecipe recipe = new ObjectRecipe(superInstance.getConstructor(), this.currentParams);
+
+				ObjectRecipe<?> recipe = new ObjectRecipe<>(superInstance.getConstructor(), this.currentParams);
 				Object create = recipe.build();
 				setUserObject(create);
-				return new Pair<Object, ObjectRecipe>(create, recipe);
+				return new Pair<>(create, recipe);
 			} catch (Exception e) {
 				System.err.println(superInstance.constructedClass.toString() + " : " + Arrays.toString(currentParams));
 				System.err.println(superInstance.toLongString());
@@ -203,6 +202,7 @@ public class ConstructorNodeChooserPointer extends AbstractChooseNode implements
 			this.hasNext = false;
 			int i = 0;
 			while (!this.hasNext && i < this.paramSize) {
+				// github issue #83
 				this.hasNext = this.hasNext || this.iterators.get(i).hasNext();
 				++i;
 			}
@@ -221,7 +221,7 @@ public class ConstructorNodeChooserPointer extends AbstractChooseNode implements
 	}
 
 	public List<ActionItem> getActions() {
-		List<ActionItem> l = new ArrayList<ActionItem>(1);	
+		List<ActionItem> l = new ArrayList<>(1);
 		l.add(new ActionItem("Suppress constructor", "suppress"));
 		return l;
 	}
@@ -256,14 +256,13 @@ public class ConstructorNodeChooserPointer extends AbstractChooseNode implements
 
 	@Override
 	public int getInstancesCount() {
-		int ret =  isCartesianEnabled ? superInstance.getInstancesCount() : 1;
-		return ret;
+        return isCartesianEnabled ? superInstance.getInstancesCount() : 1;
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (getContainingTreeModel() != null) {
-			DefaultTreeModel model = (DefaultTreeModel) this.getContainingTreeModel();
+			DefaultTreeModel model = this.getContainingTreeModel();
 			try {
 				model.removeNodeFromParent(this);
 			}
@@ -273,11 +272,7 @@ public class ConstructorNodeChooserPointer extends AbstractChooseNode implements
 			this.removeFromParent();
 			this.removeAllChildren();
 			getContainingTreeModel().reloadTree();
-		} else {
-			// DO something ? (seb, january 2011)
 		}
-
-
 		if (!e.getActionCommand().equals("real_object")) {
 			superInstance.pointed.remove(this);
 		}
@@ -290,7 +285,7 @@ public class ConstructorNodeChooserPointer extends AbstractChooseNode implements
 	}
 
 	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
-		this.containingTreeModel = (ObjectConstuctionTreeModel<?>)in.readObject();
+		this.containingTreeModel = (ObjectConstructionTreeModel<?>)in.readObject();
 		this.superInstance = (ConstructorChooseNode)in.readObject();
 		isCartesianEnabled = in.readBoolean();
 		this.setConfigured(true);
@@ -299,6 +294,7 @@ public class ConstructorNodeChooserPointer extends AbstractChooseNode implements
 				//Do nothing
 			}
 		} catch (NullPointerException e) {
+			// Issue github #84
 			superInstance.firstAcessed = null;
 		}
 	}

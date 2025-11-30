@@ -27,9 +27,9 @@
 package ch.heiafr.isc.datacockpit.tree.gui;
 
 class Placement {
-    int from;
-    int to;
-    boolean left;
+    final int from;
+    final int to;
+    final boolean left;
 
     public Placement(int from, int to, boolean left) {
         this.from = from;

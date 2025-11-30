@@ -38,9 +38,10 @@ public class TypableChooseNode extends AbstractParameterChooseNode {
 	
 	private String textValue = "";
 	
-	public TypableChooseNode(Class<?> c, Map<String, String> annotationMap,
-			ObjectConstuctionTreeModel<?> containingTree)
-					throws ClassNotFoundException {
+	public TypableChooseNode(
+			Class<?> c,
+			Map<String, String> annotationMap,
+			ObjectConstructionTreeModel<?> containingTree) {
 		super(c, containingTree, annotationMap);
 		String def = annotationMap.get("ParamName.default_");
 		if (def != null) {
@@ -138,17 +139,15 @@ public class TypableChooseNode extends AbstractParameterChooseNode {
 		} else if (isClass()) {
 			try {
 				toAdd = Class.forName(textValue);
-			} catch (Exception e) {
-			}
+			} catch (Exception ignored) {}
 			inArray = false;
 		} else {
 			try {
 				toAdd = Class.forName(parameterType);
-			} catch (ClassNotFoundException e) {
-			}
+			} catch (ClassNotFoundException ignored) {}
 			inArray = false;
 		}
-		return new Pair<Object, Boolean>(toAdd, inArray);
+		return new Pair<>(toAdd, inArray);
 	}
 
 	@Override
@@ -166,25 +165,35 @@ public class TypableChooseNode extends AbstractParameterChooseNode {
 
 	public boolean checkValues() {
 		try {
-			if (this.parameterType.equals("int")) {
-				TypeParser.parseInt(textValue);
-			} else if (this.parameterType.equals("long")) {
-				TypeParser.parseLong(textValue);
-			} else if (this.parameterType.equals("short")) {
-				TypeParser.parseShort(textValue);		
-			}else if (this.parameterType.equals("float") || this.parameterType.equals("java.lang.Float")) {
-				TypeParser.parseFloat(textValue);
-			} else if (this.parameterType.equals("double") || this.parameterType.equals("java.lang.Double")) {
-				TypeParser.parseDouble(textValue);
-			} else if (this.parameterType.equals("char")) {
-				if (textValue.length() == 1) {
-				} else {
-					textValue = "Invalid Input";
-				}	
-			} else if (this.parameterType.equals("java.lang.String")) {
-			} else if (this.parameterType.equals("java.lang.Class")) {
-				Class.forName(textValue);
-			}
+            switch (this.parameterType) {
+                case "int":
+                    TypeParser.parseInt(textValue);
+                    break;
+                case "long":
+                    TypeParser.parseLong(textValue);
+                    break;
+                case "short":
+                    TypeParser.parseShort(textValue);
+                    break;
+                case "float":
+                case "java.lang.Float":
+                    TypeParser.parseFloat(textValue);
+                    break;
+                case "double":
+                case "java.lang.Double":
+                    TypeParser.parseDouble(textValue);
+                    break;
+                case "char":
+                    if (textValue.length() != 1) {
+                        textValue = "Invalid Input";
+                    }
+                    break;
+                case "java.lang.String":
+                    break;
+                case "java.lang.Class":
+                    Class.forName(textValue);
+                    break;
+            }
 		}
 		catch (Exception e) {
 			textValue = "Invalid input";
@@ -195,9 +204,10 @@ public class TypableChooseNode extends AbstractParameterChooseNode {
 
 	@Override
 	protected AbstractParameterChooseNode paremeterChooseNodeClone(
-			Class<?> userObject, Map<String, String> annotationMap2,
-			ObjectConstuctionTreeModel<?> containingTreeModel, boolean b)
-			throws Exception {
+			Class<?> userObject,
+			Map<String, String> annotationMap2,
+			ObjectConstructionTreeModel<?> containingTreeModel,
+			boolean b) {
 		return new TypableChooseNode(userObject, annotationMap2, containingTreeModel);
 	}
 

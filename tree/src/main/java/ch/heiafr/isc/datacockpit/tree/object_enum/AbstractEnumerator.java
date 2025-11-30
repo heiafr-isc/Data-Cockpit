@@ -31,7 +31,7 @@ import javax.swing.SwingUtilities;
 
 import ch.heiafr.isc.datacockpit.tree.experiment_aut.WrongExperimentException;
 import ch.heiafr.isc.datacockpit.tree.gui.ProgressBarDialog;
-import ch.heiafr.isc.datacockpit.tree.tree_model.ObjectConstuctionTreeModel.ObjectIterator;
+import ch.heiafr.isc.datacockpit.tree.tree_model.ObjectConstructionTreeModel.ObjectIterator;
 
 public abstract class AbstractEnumerator<X> {
 	
@@ -60,27 +60,17 @@ public abstract class AbstractEnumerator<X> {
 							   final ObjectIterator<X> ite,
 							   final ProgressBarDialog progressManager,
 							   final int thread) {
-		if (thread <= 1) {
-			Thread execute = new Thread() {
-				@Override
-				public void run() {
-					runInSameThread(callback, ite, progressManager);
-				}
-			};
+        Thread execute;
+        if (thread <= 1) {
+            execute = new Thread(() -> runInSameThread(callback, ite, progressManager));
 			execute.setName("Cockpit tree runner");
-			execute.start();		
-		} else {
+        } else {
 			// For multi thread the AWT Jave CANNOT suffice to organize the tasks as progress bar need update, oct 2015
-			Thread execute = new Thread() {
-				@Override
-				public void run() {			
-					runInMultiThreads(callback, ite, progressManager, thread);
-				};
-			};
+            execute = new Thread(() -> runInMultiThreads(callback, ite, progressManager, thread));
 			execute.setName("Experiment exec master thread");
-			execute.start();
-		}
-	}
+        }
+        execute.start();
+    }
 
 	public void runInSameThread(final Runnable callback, 
 								ObjectIterator<X> ite, 
@@ -88,8 +78,9 @@ public abstract class AbstractEnumerator<X> {
 		isRunning = true;
 		this.beforeIteration();
 		iterate(ite, progressManager);
-		if (ite != null)
-		ite.cleanUp();
+		if (ite != null) {
+			ite.cleanUp();
+		}
 		this.afterIteration();
 		stopCalculations = false;
 		isRunning = false;
@@ -143,12 +134,15 @@ public abstract class AbstractEnumerator<X> {
 				}
 			}
 			catch (InterruptedException e) {
+				// Issue github #78
 				e.printStackTrace();
 			}
 		}
 		
-		if (ite != null)
-		ite.cleanUp();
+		if (ite != null) {
+			ite.cleanUp();
+		}
+
 		afterIteration();	
 		stopCalculations = false;
 		isRunning = false;
@@ -185,16 +179,12 @@ public abstract class AbstractEnumerator<X> {
 					localStop = true;
 				}
 			} catch (final Exception e) {
+				// Issue github #78
 				e.printStackTrace();
-				SwingUtilities.invokeLater( new Runnable() {			
-					public void run() {
-						JOptionPane.showMessageDialog(null,
-								"Error during experiment execution :\n" + e.getMessage()
-								+ "\nStopping experiments.", "Error",
-								JOptionPane.ERROR_MESSAGE);
-					}
-				});
-			//	stopCalculations = true;
+				SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null,
+                        "Error during experiment execution :\n" + e.getMessage()
+                        + "\nStopping experiments.", "Error",
+                        JOptionPane.ERROR_MESSAGE));
 			}
 		}	
 	}	

@@ -29,13 +29,7 @@ package ch.heiafr.isc.datacockpit.tree.tree_model;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 
@@ -44,22 +38,21 @@ import ch.heiafr.isc.datacockpit.tree.clazzes.ParamName;
 import ch.heiafr.isc.datacockpit.tree.clazzes.ConstructorDef;
 import ch.heiafr.isc.datacockpit.general_libraries.utils.Pair;
 
-public abstract class AbstractChooseNode extends DefaultMutableTreeNode implements Iterable<Pair<Object, ObjectRecipe>>, Serializable {
+public abstract class AbstractChooseNode extends DefaultMutableTreeNode implements Iterable<Pair<Object, ObjectRecipe<?>>>, Serializable {
 
 	private static final long serialVersionUID = 8955752123757035134L;
 
-	protected transient static final HashMap<ConstructorNodeChooserPointer, ConstructorChooseNode> map = new HashMap<ConstructorNodeChooserPointer, ConstructorChooseNode>();
+	protected static final HashMap<ConstructorNodeChooserPointer, ConstructorChooseNode> map = new HashMap<>();
 
-//	private transient boolean choosen;
 	protected transient boolean configured;
 	private transient List<AbstractChooseNode> childsRestore;
 	protected transient boolean invalid = false;
 	private boolean isExpanded = true;
 
-	protected ObjectConstuctionTreeModel containingTreeModel;
+	protected ObjectConstructionTreeModel<?> containingTreeModel;
 
 
-	protected AbstractChooseNode(ObjectConstuctionTreeModel containingTreeModel) {
+	protected AbstractChooseNode(ObjectConstructionTreeModel<?> containingTreeModel) {
 		this.configured = false;
 		this.containingTreeModel = containingTreeModel;
 	}
@@ -98,7 +91,7 @@ public abstract class AbstractChooseNode extends DefaultMutableTreeNode implemen
 	}	
 
 	protected void removeInvalids() {
-		ArrayList<AbstractChooseNode> f = new ArrayList<AbstractChooseNode>();
+		ArrayList<AbstractChooseNode> f = new ArrayList<>();
 		for (AbstractChooseNode child : this.getChilds()) {
 			if (child.isInvalid()) {
 				f.add(child);
@@ -124,24 +117,15 @@ public abstract class AbstractChooseNode extends DefaultMutableTreeNode implemen
 			}
 		}
 	}
-	
-/*	@Override
-	public void add(MutableTreeNode newChild) {
-		if (newChild != null) {
-			super.add(newChild);
-			((AbstractChooseNode) newChild).checkConfigured();
-		}
-		containingTreeModel.nodeStructureChanged(newChild);
-	}*/
 
 
-	public ObjectConstuctionTreeModel<?> getContainingTreeModel() {
+	public ObjectConstructionTreeModel<?> getContainingTreeModel() {
 		return this.containingTreeModel;
 	}
 
 	public String toLongString() {
 		StringBuilder sb = new StringBuilder();
-		ArrayList<TreeNode> al = new ArrayList<TreeNode>();
+		ArrayList<TreeNode> al = new ArrayList<>();
 		TreeNode pointer = this;
 		while (pointer != null) {
 			al.add(pointer);
@@ -149,7 +133,7 @@ public abstract class AbstractChooseNode extends DefaultMutableTreeNode implemen
 		}
 		for (int i = al.size()-1 ; i >= 0 ; i--) {
 			if (al.get(i) instanceof ConstructorChooseNode) {
-				sb.append(((ConstructorChooseNode)al.get(i)).getConstructedClass().getSimpleName() + "<--");
+				sb.append(((ConstructorChooseNode) al.get(i)).getConstructedClass().getSimpleName()).append("<--");
 			}
 		}
 		return sb.toString();
@@ -159,14 +143,6 @@ public abstract class AbstractChooseNode extends DefaultMutableTreeNode implemen
 		return this.configured;
 	}
 
-/*	protected void restoreAll() {
-		this.checkConfigured();
-		this.restoreCreated();
-		for (AbstractChooseNode child : this.getChildsRestore()) {
-			this.add(child);
-			child.restoreAll();
-		}
-	}*/
 	
 	protected void restoreChild(AbstractChooseNode child) {
 		this.getChildsRestore().add(child);
@@ -174,13 +150,13 @@ public abstract class AbstractChooseNode extends DefaultMutableTreeNode implemen
 
 	private List<AbstractChooseNode> getChildsRestore() {
 		if (this.childsRestore == null) {
-			this.childsRestore = new ArrayList<AbstractChooseNode>();
+			this.childsRestore = new ArrayList<>();
 		}
 		return this.childsRestore;
 	}	
 
 	protected List<AbstractChooseNode> getChilds() {
-		List<AbstractChooseNode> ret = new LinkedList<AbstractChooseNode>();
+		List<AbstractChooseNode> ret = new LinkedList<>();
 		if (this.getChildCount() > 0) {
 			for (Object child : this.children) {
 				ret.add((AbstractChooseNode) child);
@@ -193,11 +169,7 @@ public abstract class AbstractChooseNode extends DefaultMutableTreeNode implemen
 		this.configured = b;
 		if (getContainingTreeModel() != null) {
 			DefaultMutableTreeNode root = (DefaultMutableTreeNode)getContainingTreeModel().getRoot();
-			if (!(root == this)) {
-			/*	if (getParent() != null) {
-					((AbstractChooseNode) this.getParent()).checkConfigured();
-				}*/
-			} else {
+			if (root == this) {
 				this.getContainingTreeModel().readyStateChanged();
 			}
 		}
@@ -209,14 +181,14 @@ public abstract class AbstractChooseNode extends DefaultMutableTreeNode implemen
 	}
 
 	public static Map<String, String> parseAnnotations(Annotation[] annotations) {
-		Map<String, String> ret = new HashMap<String, String>();
+		Map<String, String> ret = new HashMap<>();
 		for (Annotation a : annotations) {
 			if (a instanceof ConstructorDef) {
 				ret.put("Constructor_def.def", ((ConstructorDef)a).def());
 			}
 			else if (a instanceof ParamName) {
-				if (!((ParamName)a).name().equals("")) ret.put("ParamName.name", ((ParamName)a).name());
-				if (!((ParamName)a).default_().equals("")) ret.put("ParamName.default_", ((ParamName)a).default_());
+				if (!((ParamName) a).name().isEmpty()) ret.put("ParamName.name", ((ParamName)a).name());
+				if (!((ParamName) a).default_().isEmpty()) ret.put("ParamName.default_", ((ParamName)a).default_());
 				if (!((ParamName)a).defaultClass_().equals(Object.class)) ret.put("ParamName.defaultClass_", ((ParamName)a).defaultClass_().getCanonicalName());
 				if (!((ParamName)a).abstractClass().equals(Object.class)) ret.put("ParamName.abstractClass", ((ParamName)a).abstractClass().getCanonicalName());
 				if (!((ParamName)a).requireInterface().equals(Object.class)) ret.put("ParamName.requireInterface", ((ParamName)a).requireInterface().getCanonicalName());
@@ -227,23 +199,6 @@ public abstract class AbstractChooseNode extends DefaultMutableTreeNode implemen
 		}
 		return ret;
 	}
-
-	protected boolean containsNode(AbstractChooseNode node) {
-		if (node == this) {
-			return true;
-		} else {
-			if (this.getChildCount() > 0) {
-				boolean ret = false;
-				for (Object c : this.children) {
-					AbstractChooseNode child = (AbstractChooseNode)c;
-					ret = ret || child.containsNode(node);
-				}
-				return ret;
-			} else {
-				return false;
-			}
-		}
-	}
 	
 	public static class ActionStructure extends ActionItem {
 		public List<ActionItem> childs;
@@ -253,7 +208,7 @@ public abstract class AbstractChooseNode extends DefaultMutableTreeNode implemen
 		}
 		
 		public void addItem(ActionItem item) {
-			if (childs == null) childs = new ArrayList<ActionItem>(1);
+			if (childs == null) childs = new ArrayList<>(1);
 			childs.add(item);
 		}
 	}
@@ -271,7 +226,7 @@ public abstract class AbstractChooseNode extends DefaultMutableTreeNode implemen
 	}
 	
 	public static class ActionItem {
-		public String text;
+		public final String text;
 		public String actionName;
 		
 		public ActionItem(String text, String actionName) {
@@ -302,13 +257,6 @@ public abstract class AbstractChooseNode extends DefaultMutableTreeNode implemen
 		 if(tValues.length > 0 && tValues[0].equals("userObject"))
 			 userObject = tValues[1];
 	 }
-
-
-	public ArrayList<AbstractChooseNode> getAllChildren() {
-		ArrayList<AbstractChooseNode> list = new ArrayList<AbstractChooseNode>();
-		this.getAllChildren(list);
-		return list;
-	}
 	
 	private void getAllChildren(ArrayList<AbstractChooseNode> list) {
 		if (this.children != null) {
@@ -328,18 +276,6 @@ public abstract class AbstractChooseNode extends DefaultMutableTreeNode implemen
 			}
 		}
 		this.setExpanded(true);
-	}
-
-
-	public Collection<AbstractChooseNode> getAllExpandedChildren() {
-		ArrayList<AbstractChooseNode> list = getAllChildren();
-		for (Iterator<AbstractChooseNode> ite = list.iterator() ; ite.hasNext() ; ) {
-			AbstractChooseNode n = ite.next();
-			if (!n.isExpanded()) {
-				ite.remove();
-			}
-		}
-		return list;
 	}
 	
 	public void setExpanded(boolean b) {

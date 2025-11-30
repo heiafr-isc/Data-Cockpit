@@ -53,20 +53,31 @@ public class ClassUtils {
 				ret = true;
 			} else {
 				for (Class<?> interfaces : class_.getInterfaces()) {
-					if (interfaces.equals(superClass)) {
-						ret = true;
-					}
+                    if (interfaces.equals(superClass)) {
+                        ret = true;
+                        break;
+                    }
 				}
 				class_ = class_.getSuperclass();
 			}
 		}
 		for (Class<?> interfaces : class_.getInterfaces()) {
-			if (interfaces.equals(superClass)) {
-				ret = true;
-			}
+            if (interfaces.equals(superClass)) {
+                ret = true;
+                break;
+            }
 		}
 		return ret;
 	}
-	
+
+	public static <T> Class<T> safeForName(String className) {
+        try {
+			@SuppressWarnings("unchecked")
+			Class<T> cc = (Class<T>)Class.forName(className);
+			return cc;
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+	}
 
 }

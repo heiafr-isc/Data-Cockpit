@@ -53,7 +53,7 @@ import ch.heiafr.isc.datacockpit.general_libraries.logging.Logger;
 
 public class ClassChooseNode extends AbstractParameterChooseNode implements Serializable {
 	
-	private transient final static Logger logger = new Logger(ClassChooseNode.class);
+	private final static Logger logger = new Logger(ClassChooseNode.class);
 
 	private static final String DEFAULT_SUFFIX = "___DEFAULT";
 	private static final String VOID_SUFFIX = "___VOID";
@@ -64,78 +64,79 @@ public class ClassChooseNode extends AbstractParameterChooseNode implements Seri
 	
 	protected transient boolean isSuperClass = false;
 	
-	protected ClassChooseNode(Class<?> c, Map<String, String> annotationMap,
-			ObjectConstuctionTreeModel<?> containingTree, boolean checkDef)
-					throws Exception {
+	protected ClassChooseNode(
+			Class<?> c,
+			Map<String, String> annotationMap,
+			ObjectConstructionTreeModel<?> containingTree,
+			boolean checkDef) {
 		super(c, containingTree, annotationMap);
 
 		if (parameterType.startsWith("[")) {
 			throw new IllegalStateException("ClassChooseNode should never be used for arrays");
 		}
 
-		if (parameterType.equals("java.lang.Class")) {
-			// do nothing
-		} else {
-			List<Class<?>> subClasses = getHeritedClassesImplementingRequiredInterface();
-			if (subClasses.size() > 1) {
-				String clas = annotationMap.get("ParamName.defaultClass_");
-				isSuperClass = true;
-				if (checkDef && clas != null) {
-					// Find subclass
-					Class<?> matchSubCLass = null;
-					Iterator<Class<?>> it = subClasses.iterator();
-					while (matchSubCLass == null && it.hasNext()) {
-						Class<?> nextClasse = it.next();
-						if (nextClasse.getCanonicalName() == null) {
-							System.out.println("warning null default class");
-						} else {
-							if (nextClasse.getCanonicalName().equals(clas)) {
-								matchSubCLass = nextClasse;
+		try {
+
+			if (parameterType.equals("java.lang.Class")) {
+				// do nothing
+			} else {
+				List<Class<?>> subClasses = getHeritedClassesImplementingRequiredInterface();
+				if (subClasses.size() > 1) {
+					String clas = annotationMap.get("ParamName.defaultClass_");
+					isSuperClass = true;
+					if (checkDef && clas != null) {
+						// Find subclass
+						Class<?> matchSubCLass = null;
+						Iterator<Class<?>> it = subClasses.iterator();
+						while (matchSubCLass == null && it.hasNext()) {
+							Class<?> nextClasse = it.next();
+							if (nextClasse.getCanonicalName() == null) {
+								System.out.println("warning null default class");
+							} else {
+								if (nextClasse.getCanonicalName().equals(clas)) {
+									matchSubCLass = nextClasse;
+								}
 							}
 						}
-					}
-					if (matchSubCLass != null) {
-						this.checkDefault(matchSubCLass, annotationMap);
+						if (matchSubCLass != null) {
+							this.checkDefault(matchSubCLass, annotationMap);
+						} else {
+							System.out.println("Matching default subclass not found : " + clas);
+						}
 					} else {
-						System.out.println("Matching default subclass not found : " + clas);
+						checkIfNull(annotationMap);
+					}
+				} else if (subClasses.size() == 1) { // only one class found
+					// if one class remains and the model is abstract, then it is super
+					if (Modifier.isAbstract(c.getModifiers())) isSuperClass = true;
+					if (checkDef) {
+						this.checkDefault(subClasses.get(0), annotationMap);
 					}
 				} else {
-					checkIfNull(annotationMap);
+					// if the only clas found is the signature interface, we have a problem
+					ErrorChooseNode error = new ErrorChooseNode(
+							"Cannot find any corresponding class",
+							getContainingTreeModel()
+					);
+					add(error);
 				}
-			} else if (subClasses.size() == 1) { // only one class found
-				// if one class remains and the model is abstract, then it is super
-				if (Modifier.isAbstract(c.getModifiers())) isSuperClass = true;
-				if (checkDef) {
-					this.checkDefault(subClasses.get(0), annotationMap);
-				}
-			} else {
-				// if the only clas found is the signature interface, we have a problem
-				ErrorChooseNode error = new ErrorChooseNode("Cannot find any corresponding class", getContainingTreeModel());
-				add(error);
 			}
+			checkConfigured();
 		}
-		checkConfigured();
+		catch (ClassNotFoundException e) {
+			throw new IllegalStateException(e);
+		}
 	}
 	
 	
 	
-	private List<Class<?>> getHeritedClassesImplementingRequiredInterface() throws ClassNotFoundException, Exception {
+	private List<Class<?>> getHeritedClassesImplementingRequiredInterface() throws ClassNotFoundException {
 		List<Class<?>> subClasses = getContainingTreeModel().getHeritedClasses(Class.forName(parameterType));
-		for (Iterator<Class<?>> ite = subClasses.iterator() ; ite.hasNext() ; ) {
-			Class<?> candidate = ite.next();
-			if (Modifier.isAbstract(candidate.getModifiers())) {
-				ite.remove();
-			}
-		}		
+        subClasses.removeIf(candidate -> Modifier.isAbstract(candidate.getModifiers()));
 		if (annotationMap.get("ParamName.requireInterface") != null) {
 			Class<?> extraInterface = Class.forName(annotationMap.get("ParamName.requireInterface"));
 			// pruning classes not fulfillin extra interface requirement
-			for (Iterator<Class<?>> ite = subClasses.iterator() ; ite.hasNext() ; ) {
-				Class<?> candidate = ite.next();
-				if (!extraInterface.isAssignableFrom(candidate/*Integer.class*/)) {
-					ite.remove();
-				}
-			}	
+            subClasses.removeIf(candidate -> !extraInterface.isAssignableFrom(candidate));
 		}
 		return subClasses;
 	}
@@ -162,8 +163,8 @@ public class ClassChooseNode extends AbstractParameterChooseNode implements Seri
 		}
 	}
 	
-	private boolean checkDefault(Class<?> c, Map<String, String> annotationMap) throws Exception {
-		boolean found = false;
+	private void checkDefault(Class<?> c, Map<String, String> annotationMap) {
+		boolean found;
 		String def = annotationMap.get("ParamName.default_");
 		String clas = annotationMap.get("ParamName.defaultClass_");
 		if (c.isEnum() && def != null) {
@@ -183,22 +184,23 @@ public class ClassChooseNode extends AbstractParameterChooseNode implements Seri
 				found = this.checkOnlyOneConstructor(c);
 			}
 		}
-		return found;
 	}
 	
-	private boolean checkNoParamMethod(Class<?> c) throws Exception {
+	private boolean checkNoParamMethod(Class<?> c) {
 		try {
-			Constructor<?> empty = c.getConstructor(new Class<?>[0]);
+			Constructor<?> empty = c.getConstructor();
 			ConstructorChooseNode newNode = new ConstructorChooseNode(empty, Class.forName(parameterType), getContainingTreeModel(), null, true);
 			newNode.setExpanded(false);
 			this.add(newNode);
 			return true;
 		} catch (NoSuchMethodException e) {
 			return false;
+		} catch (ClassNotFoundException e) {
+			throw new IllegalStateException(e);
 		}
 	}
 	
-	private boolean checkWithDefaultParam(Class<?> c, String def) throws Exception{
+	private boolean checkWithDefaultParam(Class<?> c, String def) {
 		Constructor<?> cons = null;
 		String defVal = null;
 		try {
@@ -242,18 +244,17 @@ public class ClassChooseNode extends AbstractParameterChooseNode implements Seri
 		} else return false;
 	}
 	
-	private boolean checkAllDefaultParams(Class<?> c) throws Exception{
+	private boolean checkAllDefaultParams(Class<?> c) {
 		Constructor<?> defaultConstructor = null;
-		Constructor[] constrArray = c.getConstructors();
+		Constructor<?>[] constrArray = c.getConstructors();
 		// looking for a constructor annotated as default
-		for (int i = 0 ; i < constrArray.length ; i++) {
-			Constructor<?> cons = constrArray[i];
-			ConstructorDef a = cons.getAnnotation(ConstructorDef.class);
-			if (a !=null && a.default_()) {
-				defaultConstructor = constrArray[i];
-				break;
-			}
-		}
+        for (Constructor<?> cons : constrArray) {
+            ConstructorDef a = cons.getAnnotation(ConstructorDef.class);
+            if (a != null && a.default_()) {
+                defaultConstructor = cons;
+                break;
+            }
+        }
 		int i = 0;		
 		while (defaultConstructor == null
 				&& i < constrArray.length) {
@@ -281,7 +282,7 @@ public class ClassChooseNode extends AbstractParameterChooseNode implements Seri
 		
 	}
 	
-	private boolean checkOnlyOneConstructor(Class<?> c) throws Exception {
+	private boolean checkOnlyOneConstructor(Class<?> c) {
 		Constructor<?>[] cons = c.getConstructors();
 		if (cons.length == 1) {
 			ConstructorChooseNode newCN = new ConstructorChooseNode(cons[0], c, getContainingTreeModel(), null, true);
@@ -296,17 +297,13 @@ public class ClassChooseNode extends AbstractParameterChooseNode implements Seri
 		if (key == null) return;
 		try {				
 			boolean checkDef;
-			if (key.endsWith(VOID_SUFFIX)) {
-				checkDef = false;
-			} else {
-				checkDef = true;
-			}
+            checkDef = !key.endsWith(VOID_SUFFIX);
 			String[] keyParse = key.split("___");		
 			this.setConfigured(false);
 			Object c = this.menuItems.get(keyParse[0]);
 			AbstractChooseNode newNode = null;
 			if (parameterType.equals("java.lang.Class")) {
-				Class idClass = Class.forName(c.toString());
+				Class<?> idClass = Class.forName(c.toString());
 				newNode = new LeafChooseNode(idClass, getContainingTreeModel());
 			} else if (key.equals(REMOVE_ALL)) {
 				this.removeAllChildren();
@@ -322,7 +319,7 @@ public class ClassChooseNode extends AbstractParameterChooseNode implements Seri
 				} else {
 					newNode = new ConstructorNodeChooserPointer(getContainingTreeModel(), (ConstructorChooseNode) c);
 				}
-			} else if (c instanceof Object) {
+			} else if (c != null) {
 				newNode = new LeafChooseNode(c, getContainingTreeModel());
 			}
 			if (newNode != null) {
@@ -348,20 +345,19 @@ public class ClassChooseNode extends AbstractParameterChooseNode implements Seri
 		return newConstructor;
 	}
 	
-	protected void buildSuperClassSubMenu(List<ActionItem> toReturn) throws ClassNotFoundException, Exception {
-		Map<String, Class<?>> classes = new HashMap<String, Class<?>>();
-//		Class<?> type = Class.forName(parameterType);
+	protected void buildSuperClassSubMenu(List<ActionItem> toReturn) throws Exception {
+		Map<String, Class<?>> classes = new HashMap<>();
 		List<Class<?>> clasList = getHeritedClassesImplementingRequiredInterface();
 		for (Class<?> cl : clasList) {
 			classes.put(cl.getName(), cl);
 		}
-		List<String> classesNames = new ArrayList<String>(classes.keySet());
+		List<String> classesNames = new ArrayList<>(classes.keySet());
 		Collections.sort(classesNames);
 		for (String className : classesNames) {
 			Class<?> c = classes.get(className);
 			ActionStructure newItem = new ActionStructure(c.getName(), null);
 
-			Map<String, Constructor<?>> constructors = new HashMap<String, Constructor<?>>();
+			Map<String, Constructor<?>> constructors = new HashMap<>();
 			for (Constructor<?> cons : c.getConstructors()) {
 				boolean ignore = false;
 				for (Annotation a :cons.getAnnotations()) {
@@ -378,11 +374,11 @@ public class ClassChooseNode extends AbstractParameterChooseNode implements Seri
 				}
 			}
 
-			if (constructors.size() == 0) {
+			if (constructors.isEmpty()) {
 				logger.warn("No public constructor available for class " + c.getName());
 				continue;
 			}
-			List<String> constructorNames = new ArrayList<String>(constructors.keySet());
+			List<String> constructorNames = new ArrayList<>(constructors.keySet());
 			Collections.sort(constructorNames);
 			for (String consName : constructorNames) {
 				Constructor<?> cons = constructors.get(consName);
@@ -402,7 +398,7 @@ public class ClassChooseNode extends AbstractParameterChooseNode implements Seri
 		Class<?> thisClass = Class.forName(parameterType);
 		if (Modifier.isAbstract(thisClass.getModifiers())) return; // 
 		if (!parameterType.equals("java.lang.String")) {
-			Map<String, Constructor<?>> constructors = new HashMap<String, Constructor<?>>();
+			Map<String, Constructor<?>> constructors = new HashMap<>();
 			for (Constructor<?> cons : thisClass.getConstructors()) {
 				String key = cons.getName();
 				while (constructors.containsKey(key)) {
@@ -410,7 +406,7 @@ public class ClassChooseNode extends AbstractParameterChooseNode implements Seri
 				}
 				constructors.put(key, cons);
 			}
-			List<String> constructorNames = new ArrayList<String>(constructors.keySet());
+			List<String> constructorNames = new ArrayList<>(constructors.keySet());
 			Collections.sort(constructorNames);
 			for (String consName : constructorNames) {
 				Constructor<?> c = constructors.get(consName);
@@ -421,8 +417,8 @@ public class ClassChooseNode extends AbstractParameterChooseNode implements Seri
 	
 	@Override
 	public List<ActionItem> getActions() {
-		List<ActionItem> toReturn = new ArrayList<ActionItem>();
-		this.menuItems = new HashMap<String, Object>();
+		List<ActionItem> toReturn = new ArrayList<>();
+		this.menuItems = new HashMap<>();
 		try {
 			if (this.isSuperClass) {
 				buildSuperClassSubMenu(toReturn);
@@ -438,9 +434,9 @@ public class ClassChooseNode extends AbstractParameterChooseNode implements Seri
 			boolean separated = true;
 			Map<ConstructorChooseNode, Integer> constructorMap = this.getContainingTreeModel().getConfiguredConstructors();
 			for (Entry<ConstructorChooseNode, Integer> o : constructorMap.entrySet()) {
-				if (((Class<?>) this.getUserObject()).equals(o.getKey().getConstructedClass())) {
+				if (this.getUserObject().equals(o.getKey().getConstructedClass())) {
 					String pointerKey = o.getKey().toString();
-					Constructor construct = o.getKey().getConstructor();					
+					Constructor<?> construct = o.getKey().getConstructor();
 					String pointerText = o.getValue()+ " : " + construct.getDeclaringClass().getSimpleName();
 					
 
@@ -477,9 +473,9 @@ public class ClassChooseNode extends AbstractParameterChooseNode implements Seri
 
 	private String createConstructorString(Constructor<?> c) {
 		String constructorAnnotation = parseAnnotations(c.getAnnotations()).get("Constructor_def.def");
-		if (constructorAnnotation == null || constructorAnnotation.equals("")) {
+		if (constructorAnnotation == null || constructorAnnotation.isEmpty()) {
 			String name = parseName(parseName(c.getName()));
-			String params = "(";
+			StringBuilder params = new StringBuilder("(");
 			Annotation[][] annotations = c.getParameterAnnotations();
 			int i = 0;
 			for (Class<?> param : c.getParameterTypes()) {
@@ -512,10 +508,11 @@ public class ClassChooseNode extends AbstractParameterChooseNode implements Seri
 					}
 				}
 				String annotation = parseAnnotations(annotations[i]).get("ParamName.name");
-				params += (i == 0 ? "" : ", ") + (annotation == null ? parseName(paramName) : annotation);
-				++i;
+				params.append(i == 0 ? "" : ", ");
+				params.append(annotation == null ? parseName(paramName) : annotation);
+				i++;
 			}
-			params += ")";
+			params.append(")");
 			return name + params;
 		} else {
 			return constructorAnnotation;
@@ -524,27 +521,27 @@ public class ClassChooseNode extends AbstractParameterChooseNode implements Seri
 	
 	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
 		out.writeObject(this.containingTreeModel);
-		out.writeObject((Class<?>) this.getUserObject());
+		out.writeObject(this.getUserObject());
 		out.writeBoolean(isSuperClass);
 		out.writeObject(annotationMap);
 		out.writeUTF(parameterType);
 		int nb = this.getChildCount();
 		out.writeInt(nb);
 		for (int i = 0; i < nb; ++i) {
-			out.writeObject((AbstractChooseNode) children.get(i));
+			out.writeObject(children.get(i));
 		}
 	}
 
 	private void readObject(java.io.ObjectInputStream in) throws IOException,
 			ClassNotFoundException {
-		this.containingTreeModel = (ObjectConstuctionTreeModel<?>)in.readObject();
-		this.setUserObject((Class<?>) in.readObject());
+		this.containingTreeModel = (ObjectConstructionTreeModel<?>)in.readObject();
+		this.setUserObject(in.readObject());
 		isSuperClass = in.readBoolean();
 		@SuppressWarnings("unchecked")
 		Map<String, String> map = (Map<String, String>)in.readObject();
 		annotationMap = map;
 		parameterType = in.readUTF();
-		menuItems = new HashMap<String, Object>();
+		menuItems = new HashMap<>();
 		int nb = in.readInt();
 		for (int i = 0; i < nb; ++i) {
 			AbstractChooseNode node = (AbstractChooseNode) in.readObject();
@@ -570,8 +567,7 @@ public class ClassChooseNode extends AbstractParameterChooseNode implements Seri
 	@Override
 	protected AbstractParameterChooseNode paremeterChooseNodeClone(
 			Class<?> userObject, Map<String, String> annotationMap2,
-			ObjectConstuctionTreeModel<?> containingTreeModel, boolean b)
-			throws Exception {
+			ObjectConstructionTreeModel<?> containingTreeModel, boolean b) {
 		return new ClassChooseNode(userObject, annotationMap2, containingTreeModel, b);
 	}	
 	
