@@ -29,10 +29,11 @@ package ch.heiafr.isc.datacockpit.tree.tree_model;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -52,79 +53,80 @@ import ch.heiafr.isc.datacockpit.tree.clazzes.ClassUtils;
 import ch.heiafr.isc.datacockpit.general_libraries.logging.Logger;
 import ch.heiafr.isc.datacockpit.general_libraries.utils.Pair;
 
-public class ObjectConstuctionTreeModel<X> extends DefaultTreeModel implements Serializable {
+public class ObjectConstructionTreeModel<X> extends DefaultTreeModel implements Serializable {
 
-	private static transient Logger logger = new Logger(ObjectConstuctionTreeModel.class);
-	
+	private static final Logger logger = new Logger(ObjectConstructionTreeModel.class);
+
 	private static final long serialVersionUID = 1L;
 	public static final String DEFAULT_FILE_NAME = "tree.conf";
 
 	private transient ClassRepository classRepo;
-	private transient List<InstanceDynamicTreeListener> listeners = new ArrayList<InstanceDynamicTreeListener>(1);
-	private transient Map<ConstructorChooseNode, Integer> configuredConstructors = new HashMap<ConstructorChooseNode, Integer>();
+	private transient List<InstanceDynamicTreeListener> listeners = new ArrayList<>(1);
+	private transient Map<ConstructorChooseNode, Integer> configuredConstructors;
 	private transient int nextConstructorIndex = 0;
 	private transient boolean ready = false;
-	
+
 	private transient TreeModelUIManager toUI;
-	
-	public static interface TreeModelUIManager {
-//		void expandPath(TreePath treePath);
-//		boolean isExpanded(TreePath treePath);
+
+	public interface TreeModelUIManager {
 		void showErrorMessage(String string);
 		void removeNode();
 		void refresh();
 	}
 
-	public static <W> ObjectConstuctionTreeModel<W> loadFromFile(ClassRepository classRepo) throws Exception {
+	public static <W> ObjectConstructionTreeModel<W> loadFromFile(ClassRepository classRepo) {
 		return loadFromFile(classRepo, DEFAULT_FILE_NAME);
 	}
-	
-	public static <W> ObjectConstuctionTreeModel<W> loadFromFile(ClassRepository classRepo, String s) throws Exception {
+
+	public static <W> ObjectConstructionTreeModel<W> loadFromFile(ClassRepository classRepo, String s) {
 		if (s == null) s = DEFAULT_FILE_NAME;
 		try {
 			ObjectInputStream in = new ObjectInputStream(new FileInputStream(s));
 			Object or = in.readObject();
-			if (or instanceof ObjectConstuctionTreeModel<?>) {
+			if (or instanceof ObjectConstructionTreeModel<?>) {
 				@SuppressWarnings("unchecked")
-				ObjectConstuctionTreeModel<W> read = (ObjectConstuctionTreeModel<W>)or;
+				ObjectConstructionTreeModel<W> read = (ObjectConstructionTreeModel<W>)or;
 				in.close();
-				read.classRepo = classRepo;				
+				read.classRepo = classRepo;
 				read.check();
-				return read;	
+				return read;
 			}
 			in.close();
 			throw new Exception("Wrong format");
 		}
 		catch (FileNotFoundException e) {
 			System.out.println("Impossible to read file " + new File(s).getAbsolutePath());
-			throw e;
+			throw new IllegalStateException(e);
 		}
 		catch (Exception e) {
+			// Issue github #78
 			e.printStackTrace();
-			throw e;
-		}	
-	}		
-	
-	public ObjectConstuctionTreeModel(Class<? extends X> newClass, ClassRepository classRepo) throws Exception {
+			throw new IllegalStateException(e);
+		}
+	}
+
+	public ObjectConstructionTreeModel(
+			Class<? extends X> newClass,
+			ClassRepository classRepo) {
 		super(new DefaultMutableTreeNode());
 		logger.trace("Initialisation of the configuration tree");
-		configuredConstructors = new HashMap<ConstructorChooseNode, Integer>();
+		configuredConstructors = new HashMap<>();
 		this.classRepo = classRepo;
-		ClassChooseNode ccn = new ClassChooseNode(newClass, AbstractChooseNode.parseAnnotations(newClass.getAnnotations()), this, false);		
+		ClassChooseNode ccn = new ClassChooseNode(newClass, AbstractChooseNode.parseAnnotations(newClass.getAnnotations()), this, false);
 		this.setRoot(ccn);
 	}
-	
+
 	@Override
     public void removeNodeFromParent(MutableTreeNode node) {
 		super.removeNodeFromParent(node);
 		toUI.removeNode();
 	}
-	
+
 	private void check() {
 		getRootChooseNode().removeInvalidsRecursive();
 		getRootChooseNode().checkConfiguredRecursive();
 	}
-	
+
 	public void setTreeModelUIManager(TreeModelUIManager ui) {
 		this.toUI = ui;
 	}
@@ -135,41 +137,41 @@ public class ObjectConstuctionTreeModel<X> extends DefaultTreeModel implements S
 
 	public void saveFile(String file) {
 		try {
-			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file));
+			ObjectOutputStream out = new ObjectOutputStream(Files.newOutputStream(Paths.get(file)));
 			out.writeObject(this);
 			out.flush();
 			out.close();
 		} catch (Exception ex) {
+			// Issue github #78
 			ex.printStackTrace();
 			toUI.showErrorMessage("File error!\nUnable to save file.");
 		}
-	}	
-	
+	}
+
 	public boolean isReady() {
 		return ready;
 	}
-	
+
 	private AbstractChooseNode getRootChooseNode() {
 		return (AbstractChooseNode) getRoot();
 	}
 
 	public void addInstanceDynamicTreeListener(InstanceDynamicTreeListener listener) {
 		if (this.listeners == null) {
-			this.listeners = new ArrayList<InstanceDynamicTreeListener>(1);
+			this.listeners = new ArrayList<>(1);
 		}
 		this.listeners.add(listener);
 		getRootChooseNode().checkConfiguredRecursive();
-	}	
-	
+	}
+
 	public void reloadTree() {
 		try{
 			getRootChooseNode().checkConfiguredRecursive();
-	//		Collection<AbstractChooseNode> temp = this.getExpandedNodes();
 			reload();
 			toUI.refresh();
 		} catch (NullPointerException e) {
 			throw new IllegalStateException(e);
-		}		
+		}
 	}
 
 	protected void readyStateChanged() {
@@ -183,13 +185,13 @@ public class ObjectConstuctionTreeModel<X> extends DefaultTreeModel implements S
 				ready = false;
 			}
 		}
-	}	
-	
+	}
+
 	protected int addConfiguredConstructor(ConstructorChooseNode toAdd) {
 		++this.nextConstructorIndex;
 		if (configuredConstructors == null) {
 			// can be null after deserialization
-			configuredConstructors = new HashMap<ConstructorChooseNode, Integer>();
+			configuredConstructors = new HashMap<>();
 		}
 		this.configuredConstructors.put(toAdd, this.nextConstructorIndex);
 		return nextConstructorIndex;
@@ -198,22 +200,21 @@ public class ObjectConstuctionTreeModel<X> extends DefaultTreeModel implements S
 	protected void removeConsrtuctor(ConstructorChooseNode toRemove) {
 		if (configuredConstructors == null) {
 			// can be null after deserialization
-			configuredConstructors = new HashMap<ConstructorChooseNode, Integer>();
-		}		
+			configuredConstructors = new HashMap<>();
+		}
 		this.configuredConstructors.remove(toRemove);
 	}
 
 	protected Map<ConstructorChooseNode, Integer> getConfiguredConstructors() {
 		if (configuredConstructors == null) {
-			// can be null after deserialization
-			configuredConstructors = new HashMap<ConstructorChooseNode, Integer>();
-		}		
+			configuredConstructors = new HashMap<>();
+		}
 		return this.configuredConstructors;
 	}
 
-	protected List<Class<?>> getHeritedClasses(Class<?> c) throws Exception {
+	protected List<Class<?>> getHeritedClasses(Class<?> c)  {
 		logger.debug("Looking for classes extending " + c.getSimpleName() + "...");
-		HashSet<Class<?>> classes = new HashSet<Class<?>>();
+		HashSet<Class<?>> classes = new HashSet<>();
 		classes.add(c);
 		for (Class<?> cl : classRepo.getClasses(c)) {
 			if (ClassUtils.isHeritingFrom(cl, c)) {
@@ -221,20 +222,19 @@ public class ObjectConstuctionTreeModel<X> extends DefaultTreeModel implements S
 			}
 		}
 		logger.trace("Found " + classes.size() + " ones");
-		return new ArrayList<Class<?>>(classes);
+		return new ArrayList<>(classes);
 	}
 
 
 	public ObjectIterator<X> getObjectIterator() {
-		ObjectIterator<X> ret = new ObjectIterator<X>(getRootChooseNode());
-		return ret;
+        return new ObjectIterator<>(getRootChooseNode());
 	}
-	
+
 	public static class ObjectIterator<X> implements Iterator<X> {
 
-		Iterator<Pair<Object, ObjectRecipe>> rootIterator;
-		AbstractChooseNode rootClone;
-		
+		final Iterator<Pair<Object, ObjectRecipe<?>>> rootIterator;
+		final AbstractChooseNode rootClone;
+
 		public ObjectIterator(AbstractChooseNode root) {
 			rootClone = (AbstractChooseNode)root.clone();
 			rootClone.resetIterators();
@@ -251,23 +251,23 @@ public class ObjectConstuctionTreeModel<X> extends DefaultTreeModel implements S
 			if (!rootClone.isConfigured()) {
 				throw new NoSuchElementException();
 			}
-			Pair<Object, ObjectRecipe> pair = this.rootIterator.next();
+			Pair<Object, ObjectRecipe<?>> pair = this.rootIterator.next();
 			if (pair != null) {
 				return (X) pair.getFirst();
 			} else {
 				return null; // item is with error (WrongExperimentException)
 			}
-			
+
 		}
 
 		@Override
 		public void remove() {
 			throw new UnsupportedOperationException();
 		}
-		
+
 		public void cleanUp() {
 			rootClone.cleanUp();
 		}
 	}
-	
+
 }

@@ -27,11 +27,7 @@
 package ch.heiafr.isc.datacockpit.tree.clazzes;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipException;
@@ -42,13 +38,13 @@ public class ClasspathClassesEnumerator {
 	
 	private static final Logger logger = new Logger(ClasspathClassesEnumerator.class);	
 	
-	public static interface Processor {
-		public void process(String className) throws Exception;
+	public interface Processor {
+		void process(String className) throws Exception;
 	}
 	
 	private Vector<List<String>> includePrefixes;	
 	private List<String> prefixes;
-	private Processor p;
+	private final Processor p;
 	
 	// UNIQUE ENTRY POINT FOR THIS CLASS
 	public static void enumerateClasses(Processor p, String[] prefixes) {
@@ -77,7 +73,7 @@ public class ClasspathClassesEnumerator {
 						try {
 							JarFile jf = new JarFile(f);
 							processJar(jf);
-						} catch (ZipException e) {
+						} catch (ZipException ignored) {
 						} catch (Exception e) {
 							System.out.println("ERROR in file "
 									+ f.getAbsoluteFile());
@@ -96,14 +92,14 @@ public class ClasspathClassesEnumerator {
 	}
 	
 	private void processPrefixes(List<String> prefixes) {
-		this.includePrefixes = new Vector<List<String>>();
-		this.prefixes = new ArrayList<String>();
+		this.includePrefixes = new Vector<>();
+		this.prefixes = new ArrayList<>();
 		for (String pref : prefixes) {
 			int i = pref.split("\\.").length;
 			includePrefixes.setSize(Math.max(includePrefixes.size(), i));
 			for (int j = 0; j < i; j++) {
 				if (includePrefixes.get(j) == null) {
-					includePrefixes.setElementAt(new ArrayList<String>(), j);
+					includePrefixes.setElementAt(new ArrayList<>(), j);
 				}
 			}
 			includePrefixes.get(i - 1).add(pref);
@@ -113,11 +109,11 @@ public class ClasspathClassesEnumerator {
 	
 	private void processDir(File f, String prefix, int prefixN)
 	throws Exception {
-		for (File sf : f.listFiles()) {
+		for (File sf : Objects.requireNonNull(f.listFiles())) {
 			if (sf.isDirectory()) {
-				if (prefix.equals("")) {
-					boolean processed = false;
-					if (includePrefixes.size() == 0) {
+                boolean processed = false;
+                if (prefix.isEmpty()) {
+                    if (includePrefixes.isEmpty()) {
 						processGrantedDir(sf, sf.getName());
 					} else {
 						for (String s : includePrefixes.get(prefixN)) {
@@ -127,35 +123,32 @@ public class ClasspathClassesEnumerator {
 								break;
 							}
 						}
-						if (processed == false) {
+						if (!processed) {
 							if (includePrefixes.size() > 1) {
 								processDir(sf, sf.getName(), 1);
 							}
 						}
 					}
 				} else {
-					boolean processed = false;
-					for (String s : includePrefixes.get(prefixN)) {
+                    for (String s : includePrefixes.get(prefixN)) {
 						if ((prefix + "." + sf.getName()).startsWith(s)) {
 							processGrantedDir(sf, prefix + "." + sf.getName());
 							break;
 						}
 					}
-					if (processed == false) {
-						if (includePrefixes.size() > prefixN + 1) {
-							processDir(sf, prefix + "." + sf.getName(),
-									prefixN + 1);
-						}
-					}
-				}
+                    if (includePrefixes.size() > prefixN + 1) {
+                        processDir(sf, prefix + "." + sf.getName(),
+                                prefixN + 1);
+                    }
+                }
 			}
 		}
 	}
 
 	private void processGrantedDir(File f, String prefix) throws Exception {
-		for (File sf : f.listFiles()) {
+		for (File sf : Objects.requireNonNull(f.listFiles())) {
 			if (sf.isDirectory()) {
-				if (prefix.equals("")) {
+				if (prefix.isEmpty()) {
 					processGrantedDir(sf, sf.getName());
 				} else {
 					processGrantedDir(sf, prefix + "." + sf.getName());

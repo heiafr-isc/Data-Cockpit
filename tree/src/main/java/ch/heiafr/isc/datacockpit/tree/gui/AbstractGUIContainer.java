@@ -34,6 +34,7 @@ import java.awt.LayoutManager;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.Objects;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -55,7 +56,7 @@ import ch.heiafr.isc.datacockpit.tree.tree_model.LeafChooseNode;
 
 public abstract class AbstractGUIContainer extends JPanel {
 	
-	protected static int lineHeight = 21;
+	protected static final int lineHeight = 21;
 	
 	private final JLabel textLabel;	
 	
@@ -63,11 +64,11 @@ public abstract class AbstractGUIContainer extends JPanel {
 	
 	private static final long serialVersionUID = 1L;
 	
-	protected static java.awt.Font defaultFont = new java.awt.Font("Arial", Font.BOLD, 11);
-	protected transient FontMetrics defaultFontMetrics;
+	protected static final java.awt.Font defaultFont = new java.awt.Font("Arial", Font.BOLD, 11);
+	protected final transient FontMetrics defaultFontMetrics;
 	
 	protected final AbstractChooseNode absNode;
-	protected transient int prefix;
+	protected final transient int prefix;
 	
 	public abstract void refreshImpl();
 	
@@ -215,12 +216,12 @@ public abstract class AbstractGUIContainer extends JPanel {
 				breakerIndex++;
 			}
 		}
-		ret.add(s.substring(previousIndex, s.length()));
+		ret.add(s.substring(previousIndex));
 		return ret;
 	}
 
 	public void setIcon(String path) {
-		ImageIcon image = new ImageIcon(this.getClass().getResource(path));
+		ImageIcon image = new ImageIcon(Objects.requireNonNull(this.getClass().getResource(path)));
 		textLabel.setIcon(image);
 	}
 	

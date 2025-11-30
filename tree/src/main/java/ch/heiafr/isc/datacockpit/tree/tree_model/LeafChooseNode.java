@@ -45,7 +45,9 @@ public class LeafChooseNode extends AbstractChooseNode {
 	private static final long serialVersionUID = -5276221026077034218L;
 	private transient boolean isNull = false;
 
-	public LeafChooseNode(Object obj, ObjectConstuctionTreeModel tree) {
+	public LeafChooseNode(
+			Object obj,
+			ObjectConstructionTreeModel<?> tree) {
 		super(tree);
 		this.setUserObject(obj);
 		if (obj == null) {
@@ -59,9 +61,9 @@ public class LeafChooseNode extends AbstractChooseNode {
 	}
 
 	public String getText() {
-		String value = "";
+		String value;
 		if (getUserObject() instanceof Class) {
-			value = ((Class)getUserObject()).getSimpleName();
+			value = ((Class<?>)getUserObject()).getSimpleName();
 		} else {
 			value = isNull() ? "null" : getUserObject().toString();
 		}	
@@ -85,7 +87,7 @@ public class LeafChooseNode extends AbstractChooseNode {
 	@Override
 	public void actionPerformed(String key) 	{
 		LeafChooseNode instance = LeafChooseNode.this;
-		DefaultTreeModel model = (DefaultTreeModel) instance.getContainingTreeModel();
+		DefaultTreeModel model = instance.getContainingTreeModel();
 		try {
 			model.removeNodeFromParent(instance);
 		}
@@ -98,7 +100,7 @@ public class LeafChooseNode extends AbstractChooseNode {
 	}
 	
 	public List<ActionItem> getActions() {
-		List<ActionItem> l = new ArrayList<ActionItem>(1);	
+		List<ActionItem> l = new ArrayList<>(1);
 		l.add(new ActionItem("Suppress value", "suppress"));
 		return l;
 	}
@@ -126,8 +128,8 @@ public class LeafChooseNode extends AbstractChooseNode {
 	}
 
 	@Override
-	public Iterator<Pair<Object, ObjectRecipe>> iterator() {
-		Iterator<Pair<Object, ObjectRecipe>> ret = new Iterator<Pair<Object, ObjectRecipe>>() {
+	public Iterator<Pair<Object, ObjectRecipe<?>>> iterator() {
+		return new Iterator<Pair<Object, ObjectRecipe<?>>>() {
 
 			private boolean delivered = false;
 
@@ -137,9 +139,9 @@ public class LeafChooseNode extends AbstractChooseNode {
 			}
 
 			@Override
-			public Pair<Object, ObjectRecipe> next() {
+			public Pair<Object, ObjectRecipe<?>> next() {
 				this.delivered = true;
-				return new Pair<Object, ObjectRecipe>(getUserObject(), null);
+				return new Pair<>(getUserObject(), null);
 			}
 
 			@Override
@@ -147,7 +149,6 @@ public class LeafChooseNode extends AbstractChooseNode {
 				throw new UnsupportedOperationException();
 			}
 		};
-		return ret;
 	}
 	
 	public DefinitionIterator getDefinitionIterator() {
@@ -193,9 +194,9 @@ public class LeafChooseNode extends AbstractChooseNode {
 	}		
 	
 	@Override
+	// Issue github #81
 	public Object clone() {
-		LeafChooseNode ret = new LeafChooseNode(this.getUserObject(), this.getContainingTreeModel());
-		return ret;
+		return new LeafChooseNode(this.getUserObject(), this.getContainingTreeModel());
 	}
 
 	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
@@ -203,20 +204,22 @@ public class LeafChooseNode extends AbstractChooseNode {
 		if (this.getUserObject() instanceof Serializable || getUserObject() == null) {
 			out.writeBoolean(getUserObject() == null);
 			out.writeBoolean(this.configured);
-			if (getUserObject() != null)
-			out.writeObject(this.getUserObject());			
+			if (getUserObject() != null) {
+				out.writeObject(getUserObject());
+			}
 		} else {
 			System.err.println(this.getUserObject().getClass().getName() + " Not serializable.");
 		}
 	}
 
 	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
-		this.containingTreeModel = (ObjectConstuctionTreeModel<?>)in.readObject();
-		boolean isNUll = in.readBoolean();
-		this.isNull = isNUll;
+		this.containingTreeModel = (ObjectConstructionTreeModel<?>)in.readObject();
+		boolean isNull = in.readBoolean();
+		this.isNull = isNull;
 		this.setConfigured(in.readBoolean());
-		if (isNUll == false)
-		this.setUserObject(in.readObject());		
+		if (!isNull) {
+			this.setUserObject(in.readObject());
+		}
 	}
 
 	@SuppressWarnings("unused")

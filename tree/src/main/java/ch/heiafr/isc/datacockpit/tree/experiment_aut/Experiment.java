@@ -26,18 +26,11 @@
  */
 package ch.heiafr.isc.datacockpit.tree.experiment_aut;
 
-import ch.heiafr.isc.datacockpit.tree.clazzes.ClassRepository;
 import ch.heiafr.isc.datacockpit.general_libraries.results.AbstractResultsDisplayer;
 import ch.heiafr.isc.datacockpit.general_libraries.results.AbstractResultsManager;
 
 public interface Experiment {
 	
-	public void run(AbstractResultsManager man, AbstractResultsDisplayer dis) throws WrongExperimentException;
-	
-	public static class globals {
-		public static ClassRepository classRepo = null;
-	}
-	
-	
+	void run(AbstractResultsManager man, AbstractResultsDisplayer dis) throws WrongExperimentException;
 	
 }
