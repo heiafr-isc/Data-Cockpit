@@ -39,9 +39,6 @@ import java.util.Map;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 
-import ch.heiafr.isc.datacockpit.tree.clazzes.ObjectRecipe;
-import ch.heiafr.isc.datacockpit.tree.clazzes.ParamName;
-import ch.heiafr.isc.datacockpit.tree.clazzes.ConstructorDef;
 import ch.heiafr.isc.datacockpit.general_libraries.utils.Pair;
 
 public abstract class AbstractChooseNode extends DefaultMutableTreeNode implements Iterable<Pair<Object, ObjectRecipe>>, Serializable {

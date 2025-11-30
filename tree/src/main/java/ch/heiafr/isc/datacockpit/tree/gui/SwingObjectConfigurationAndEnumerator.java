@@ -39,8 +39,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
-import ch.heiafr.isc.datacockpit.tree.clazzes.ClassRepository;
-import ch.heiafr.isc.datacockpit.tree.experiment_aut.Experiment;
+import ch.heiafr.isc.datacockpit.general_libraries.gui.ProgressBarDialog;
+import ch.heiafr.isc.datacockpit.general_libraries.clazzes.ClassRepository;
 import ch.heiafr.isc.datacockpit.general_libraries.logging.Logger;
 import ch.heiafr.isc.datacockpit.tree.object_enum.AbstractEnumerator;
 import ch.heiafr.isc.datacockpit.tree.tree_model.ObjectConstuctionTreeModel;
@@ -73,7 +73,6 @@ public class SwingObjectConfigurationAndEnumerator<X> implements InstanceDynamic
 		logger.info("Creation of the class repository");
 		classRepo = ClassRepository.getClassRepository(prefixes);
 		logger.info("Done with class repo");
-		if (Experiment.globals.classRepo == null) Experiment.globals.classRepo = classRepo;
 		this.clas = c;
 	}
 	
