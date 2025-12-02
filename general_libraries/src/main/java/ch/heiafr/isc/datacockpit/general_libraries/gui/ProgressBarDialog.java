@@ -24,45 +24,46 @@
  * 
  * Contributor list -
  */
-package ch.heiafr.isc.datacockpit.tree.clazzes;
+package ch.heiafr.isc.datacockpit.general_libraries.gui;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 
-public class ObjectRecipe<T> {
+import javax.swing.JDialog;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+
+public class ProgressBarDialog extends JDialog {
 	
-	private Constructor<T> constructor;
-	private Object[] parameters;
-	private ObjectRecipe[] futureParameters;
+	private static final long serialVersionUID = 1L;
+	private int steps;
+	private int current = 0;
+	private JProgressBar progressBar;
 	
-	public ObjectRecipe(Constructor<T> c, Object[] param) {
-		this.constructor = c;
-		this.parameters = param;
+	public ProgressBarDialog(int steps) {
+		this.steps = steps;
+		this.setSize(300, 100);
+		this.setTitle("Progress");
+		this.progressBar = new JProgressBar(0, steps);
+		progressBar.setSize(220, 70);
+		progressBar.setPreferredSize(new Dimension(220, 60));
+		JPanel panel = new JPanel(new FlowLayout());
+		panel.add(progressBar);
+		this.setContentPane(panel);
 	}
 	
-	public ObjectRecipe(Constructor<T> c, ObjectRecipe[] subs) {
-		this.constructor = c;
-		this.futureParameters = subs;
-	}
-	
-	public T build() {
-		try {
-			if (parameters == null) {
-				parameters = new Object[futureParameters.length];
-				for (int i = 0 ; i < parameters.length ; i++) {
-					parameters[i] = futureParameters[i].build();
-				}
-			}
-			return constructor.newInstance(parameters);
-		} catch (IllegalArgumentException e) {
-			throw new IllegalStateException(e);
-		} catch (InstantiationException e) {
-			throw new IllegalStateException(e);
-		} catch (IllegalAccessException e) {
-			throw new IllegalStateException(e);
-		} catch (InvocationTargetException e) {
-			throw new IllegalStateException(e);
+	public void incrementProgression() {
+		current++;
+		progressBar.setValue(current);
+		if (current == steps) {
+			this.setVisible(false);
 		}
+	}
+	
+	public ProgressBarDialog setDialogVisible() {
+		setLocationRelativeTo(null);
+		super.setVisible(true);
+		return this;
 	}
 
 }

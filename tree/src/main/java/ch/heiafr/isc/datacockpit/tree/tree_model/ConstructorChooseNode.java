@@ -37,10 +37,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import ch.heiafr.isc.datacockpit.tree.clazzes.ObjectRecipe;
-import ch.heiafr.isc.datacockpit.tree.clazzes.ParamName;
 import ch.heiafr.isc.datacockpit.tree.experiment_aut.WrongExperimentException;
-import ch.heiafr.isc.datacockpit.tree.clazzes.ClassUtils;
+import ch.heiafr.isc.datacockpit.general_libraries.clazzes.ClassUtils;
 import ch.heiafr.isc.datacockpit.general_libraries.utils.Pair;
 import ch.heiafr.isc.datacockpit.general_libraries.logging.Logger;
 

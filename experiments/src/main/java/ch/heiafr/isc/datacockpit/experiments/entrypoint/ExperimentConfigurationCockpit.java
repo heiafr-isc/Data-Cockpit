@@ -27,11 +27,12 @@
 package ch.heiafr.isc.datacockpit.experiments.entrypoint;
 
 import java.io.File;
+import java.util.Arrays;
 
-import ch.heiafr.isc.datacockpit.tree.experiment_aut.Experiment;
+import ch.heiafr.isc.datacockpit.database.SmartDataPointCollector;
+import ch.heiafr.isc.datacockpit.experiments.Experiment;
 import ch.heiafr.isc.datacockpit.tree.gui.SwingObjectConfigurationAndEnumerator;
-import ch.heiafr.isc.datacockpit.tree.object_enum.AbstractEnumerator;
-import ch.heiafr.isc.datacockpit.tree.object_enum.ExperimentExecutionManager;
+import ch.heiafr.isc.datacockpit.experiments.ExperimentExecutionManager;
 import ch.heiafr.isc.datacockpit.general_libraries.logging.Logger;
 
 // TODO : a mettre dans le module experiment directement, et construire le ExperimentExecutionManager
@@ -48,22 +49,24 @@ public static void main(String[] args) {
 		gui.displayResults(sdpc);
 		}*/
 
-// ExperimentConfigurationCockpit should no longer extends SwingObjectConfigurationAndEnumerator<Experiment>
-// It should instead serve as an entrypoint configuration class that directly recieves a "Tree" object to use (method show())
-// which is currently the SwingObjectConfigurationAndEnumerator<Experiment> object
-public class ExperimentConfigurationCockpit extends SwingObjectConfigurationAndEnumerator<Experiment> {
-	
-	private static final long serialVersionUID = 1L;
+public class ExperimentConfigurationCockpit {
 
-	@SuppressWarnings("unchecked")
+	private String treeToLoad;
+
+
+	private String[] prefixes = null;
+
+	/**
+	 * By default, we look for any Experiment
+	 */
+	private Class<? extends Experiment> c = Experiment.class;
+
 	public static void main(String[] args) {
-
-		
 		try {
 			String claz = null;
 			String pre = null;
 			String log4jFile = null;	
-			String defaultFile = null;
+			String treeToLoad = null;
 			if (args.length > 0) {
 				if (args[0].equals("-help") || args[0].equals("help") || args[0].equals("-h") || args[0].equals("usage")) {
 					printUsage();
@@ -78,35 +81,20 @@ public class ExperimentConfigurationCockpit extends SwingObjectConfigurationAndE
 					if (args[i].equals("-l")) {
 						log4jFile = args[i+1];
 					}
-					if (args[i].equals("-default")) {
-						defaultFile = args[i+1];
+					if (args[i].equals("-tree")) {
+						treeToLoad = args[i+1];
 					}
 				}
 			}
 			if (log4jFile != null) {
 				Logger.initLogger(new File(log4jFile));
 			}
-			ExperimentConfigurationCockpit co;
-			if (claz != null) {
-				Class c = Class.forName(claz);
-				Class<? extends Experiment> cc = (Class<? extends Experiment>)c;
-				if (pre != null) {
-					co = new ExperimentConfigurationCockpit(cc, pre.split(";"));
-				} else {
-					co = new ExperimentConfigurationCockpit(cc, "".split(";"));
-				}
-			} else {
-				if (pre != null) {
-					co = new ExperimentConfigurationCockpit(null, pre.split(";"));
-				} else {
-					co = new ExperimentConfigurationCockpit();
-				}
-			}
-			if (defaultFile != null) {
-				co.show(defaultFile);
-			} else {
-				co.show();
-			}
+
+			new ExperimentConfigurationCockpit()
+					.setExperimentClass(claz)
+					.setPrefixes(pre)
+					.setTreeToLoad(treeToLoad)
+					.show();
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -114,37 +102,67 @@ public class ExperimentConfigurationCockpit extends SwingObjectConfigurationAndE
 	}
 	
 	private static void printUsage() {
-		System.out.println("Usage : [-c <class_to_configure>][-p <prefixes, ;-separated>][-l <log4j config file>]");
+		System.out.println("Usage : [-c <class_to_configure>][-p <prefixes, ;-separated>][-l <log4j config file>][-tree <treefile to load>");
 		System.exit(0);
 	}
 
+	public ExperimentConfigurationCockpit setTreeToLoad(String treeToLoad) {
+		this.treeToLoad = treeToLoad;
+		return this;
+	}
 
-	public ExperimentConfigurationCockpit() {
-		this((Class<? extends Experiment>)null);
+	public ExperimentConfigurationCockpit setPrefixes(String prefixesSemicolonSeparated) {
+		if (prefixesSemicolonSeparated != null) {
+			return this.setPrefixes(prefixesSemicolonSeparated.split(";"));
+		}
+		return this;
 	}
-	
-	public ExperimentConfigurationCockpit(Class<? extends Experiment> c) {
-		this(c, new String[]{"ch", "test", "org.optsquare", "umontreal", "edu.columbia", "archives"});
-	}
-	
-	public ExperimentConfigurationCockpit(String[] prefixes) {	
-		this(null, prefixes);
-	}	
 
-	public ExperimentConfigurationCockpit(Class<? extends Experiment> c, String[] prefixes) {
-		this(c, new ExperimentExecutionManager(), prefixes);
+	public ExperimentConfigurationCockpit setPrefixes(String[] prefixes) {
+		this.prefixes = prefixes;
+		return this;
 	}
-	
-	public ExperimentConfigurationCockpit(Class<? extends Experiment> c, AbstractEnumerator<Experiment> t, String[] pre) {
-		super(check(c), t, pre);
+
+	public ExperimentConfigurationCockpit setExperimentClass(Class<? extends Experiment> c) {
+		this.c = c;
+		return this;
 	}
-	
-	private static Class<? extends Experiment> check(Class<? extends Experiment> c) {
-		if (c == null) {
-			return Experiment.class;
+
+	public ExperimentConfigurationCockpit setExperimentClass(String c) {
+		if (c != null) {
+            Class<? extends Experiment> cc = null;
+            try {
+                cc = (Class<? extends Experiment>)Class.forName(c);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+            return this.setExperimentClass(cc);
+		}
+		return this;
+	}
+
+	public void show() {
+		if (prefixes == null) {
+			findPrefixes();
+		}
+		SwingObjectConfigurationAndEnumerator<Experiment> cockpit = new SwingObjectConfigurationAndEnumerator<>(
+				c,
+				new ExperimentExecutionManager<>(new SmartDataPointCollector()),
+				prefixes);
+		if (treeToLoad != null) {
+			cockpit.show(treeToLoad);
 		} else {
-			return c;
+			cockpit.show();
 		}
 	}
 
+	private void findPrefixes() {
+		if (System.getProperty("datacockpit.prefixes") != null) {
+			this.prefixes = System.getProperty("datacockpit.prefixes").split(";");
+			System.out.println("Found prefixes: " + Arrays.toString(this.prefixes) + " looking at the 'datacockpit.prefixes' property");
+		} else {
+			this.prefixes = new String[]{"ch", "test", "org.optsquare", "umontreal", "edu.columbia", "archives"};
+			System.out.println("Use default prefixes: " + Arrays.toString(this.prefixes));
+		}
+	}
 }

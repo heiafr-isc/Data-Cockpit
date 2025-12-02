@@ -24,20 +24,45 @@
  * 
  * Contributor list -
  */
-package ch.heiafr.isc.datacockpit.tree.experiment_aut;
+package ch.heiafr.isc.datacockpit.tree.tree_model;
 
-import ch.heiafr.isc.datacockpit.tree.clazzes.ClassRepository;
-import ch.heiafr.isc.datacockpit.general_libraries.results.AbstractResultsDisplayer;
-import ch.heiafr.isc.datacockpit.general_libraries.results.AbstractResultsManager;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
-public interface Experiment {
+public class ObjectRecipe<T> {
 	
-	public void run(AbstractResultsManager man, AbstractResultsDisplayer dis) throws WrongExperimentException;
+	private Constructor<T> constructor;
+	private Object[] parameters;
+	private ObjectRecipe[] futureParameters;
 	
-	public static class globals {
-		public static ClassRepository classRepo = null;
+	public ObjectRecipe(Constructor<T> c, Object[] param) {
+		this.constructor = c;
+		this.parameters = param;
 	}
 	
+	public ObjectRecipe(Constructor<T> c, ObjectRecipe[] subs) {
+		this.constructor = c;
+		this.futureParameters = subs;
+	}
 	
-	
+	public T build() {
+		try {
+			if (parameters == null) {
+				parameters = new Object[futureParameters.length];
+				for (int i = 0 ; i < parameters.length ; i++) {
+					parameters[i] = futureParameters[i].build();
+				}
+			}
+			return constructor.newInstance(parameters);
+		} catch (IllegalArgumentException e) {
+			throw new IllegalStateException(e);
+		} catch (InstantiationException e) {
+			throw new IllegalStateException(e);
+		} catch (IllegalAccessException e) {
+			throw new IllegalStateException(e);
+		} catch (InvocationTargetException e) {
+			throw new IllegalStateException(e);
+		}
+	}
+
 }

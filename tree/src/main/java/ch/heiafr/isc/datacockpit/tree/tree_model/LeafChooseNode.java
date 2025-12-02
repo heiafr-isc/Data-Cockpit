@@ -36,7 +36,6 @@ import java.util.List;
 
 import javax.swing.tree.DefaultTreeModel;
 
-import ch.heiafr.isc.datacockpit.tree.clazzes.ObjectRecipe;
 import ch.heiafr.isc.datacockpit.general_libraries.utils.Pair;
 
 
