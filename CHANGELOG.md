@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### [PR 94](https://github.com/heiafr-isc/Data-Cockpit/pull/94)
+patch: Following MR #93 
+
+
+
 ### [PR 87](https://github.com/heiafr-isc/Data-Cockpit/pull/87)
 patch: The code of the tree module has been cleaned, and most warnings removed. Some warnings remain but there are now GitHub issues to describe them.
 
