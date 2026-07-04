@@ -24,46 +24,21 @@
  * 
  * Contributor list -
  */
-package ch.heiafr.isc.datacockpit.tree.gui;
+package ch.heiafr.isc.datacockpit.experiments;
 
-import java.awt.Dimension;
-import java.awt.FlowLayout;
+import ch.heiafr.isc.datacockpit.general_libraries.clazzes.ClassRepository;
+import ch.heiafr.isc.datacockpit.general_libraries.results.AbstractResultsDisplayer;
+import ch.heiafr.isc.datacockpit.general_libraries.results.AbstractResultsManager;
+import ch.heiafr.isc.datacockpit.tree.experiment_aut.WrongExperimentException;
 
-import javax.swing.JDialog;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-
-public class ProgressBarDialog extends JDialog {
+public interface Experiment {
 	
-	private static final long serialVersionUID = 1L;
-	private int steps;
-	private int current = 0;
-	private JProgressBar progressBar;
+	public void run(AbstractResultsManager man, AbstractResultsDisplayer dis) throws WrongExperimentException;
 	
-	public ProgressBarDialog(int steps) {
-		this.steps = steps;
-		this.setSize(300, 100);
-		this.setTitle("Progress");
-		this.progressBar = new JProgressBar(0, steps);
-		progressBar.setSize(220, 70);
-		progressBar.setPreferredSize(new Dimension(220, 60));
-		JPanel panel = new JPanel(new FlowLayout());
-		panel.add(progressBar);
-		this.setContentPane(panel);
+	public static class globals {
+		public static ClassRepository classRepo = null;
 	}
 	
-	public void incrementProgression() {
-		current++;
-		progressBar.setValue(current);
-		if (current == steps) {
-			this.setVisible(false);
-		}
-	}
 	
-	public ProgressBarDialog setDialogVisible() {
-		setLocationRelativeTo(null);
-		super.setVisible(true);
-		return this;
-	}
-
+	
 }

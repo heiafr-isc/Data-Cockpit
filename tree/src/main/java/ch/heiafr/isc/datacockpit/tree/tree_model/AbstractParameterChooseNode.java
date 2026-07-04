@@ -39,8 +39,7 @@ import java.util.NoSuchElementException;
 
 import javax.swing.tree.TreeNode;
 
-import ch.heiafr.isc.datacockpit.tree.clazzes.ObjectRecipe;
-import ch.heiafr.isc.datacockpit.tree.clazzes.ClassUtils;
+import ch.heiafr.isc.datacockpit.general_libraries.clazzes.ClassUtils;
 import ch.heiafr.isc.datacockpit.general_libraries.utils.Pair;
 
 

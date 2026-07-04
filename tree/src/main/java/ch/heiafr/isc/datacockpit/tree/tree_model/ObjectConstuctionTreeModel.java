@@ -45,10 +45,9 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 
-import ch.heiafr.isc.datacockpit.tree.clazzes.ObjectRecipe;
 import ch.heiafr.isc.datacockpit.tree.gui.InstanceDynamicTreeListener;
-import ch.heiafr.isc.datacockpit.tree.clazzes.ClassRepository;
-import ch.heiafr.isc.datacockpit.tree.clazzes.ClassUtils;
+import ch.heiafr.isc.datacockpit.general_libraries.clazzes.ClassRepository;
+import ch.heiafr.isc.datacockpit.general_libraries.clazzes.ClassUtils;
 import ch.heiafr.isc.datacockpit.general_libraries.logging.Logger;
 import ch.heiafr.isc.datacockpit.general_libraries.utils.Pair;
 
@@ -57,7 +56,7 @@ public class ObjectConstuctionTreeModel<X> extends DefaultTreeModel implements S
 	private static transient Logger logger = new Logger(ObjectConstuctionTreeModel.class);
 	
 	private static final long serialVersionUID = 1L;
-	public static final String DEFAULT_FILE_NAME = "tree.conf";
+	public static final String DEFAULT_FILE_NAME = "example_tree.conf";
 
 	private transient ClassRepository classRepo;
 	private transient List<InstanceDynamicTreeListener> listeners = new ArrayList<InstanceDynamicTreeListener>(1);

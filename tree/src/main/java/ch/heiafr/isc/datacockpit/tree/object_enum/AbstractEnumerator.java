@@ -30,7 +30,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import ch.heiafr.isc.datacockpit.tree.experiment_aut.WrongExperimentException;
-import ch.heiafr.isc.datacockpit.tree.gui.ProgressBarDialog;
+import ch.heiafr.isc.datacockpit.general_libraries.gui.ProgressBarDialog;
 import ch.heiafr.isc.datacockpit.tree.tree_model.ObjectConstuctionTreeModel.ObjectIterator;
 
 public abstract class AbstractEnumerator<X> {
