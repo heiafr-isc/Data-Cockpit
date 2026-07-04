@@ -37,7 +37,7 @@ import java.lang.annotation.Target;
 public @interface ParamName {
 	String name();
 	String default_() default "";
-	Class defaultClass_() default Object.class;
-	Class abstractClass() default Object.class;
-	Class requireInterface() default Object.class;
+	Class<?> defaultClass_() default Object.class;
+	Class<?> abstractClass() default Object.class;
+	Class<?> requireInterface() default Object.class;
 }

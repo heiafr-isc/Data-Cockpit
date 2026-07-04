@@ -38,11 +38,11 @@ public class ClassRepository {
 	
 	private static final Logger logger = new Logger(ClassRepository.class);	
 	
-	private HashSet<JavaClass> cache;
+	private final HashSet<JavaClass> cache;
 	/**
 	 * This is a cache of ClassRepository objects. The key is the list of prefixes
 	 */
-	private static HashMap<String[], ClassRepository> cacheClassRepositories = new HashMap<String[], ClassRepository>();
+	private static final HashMap<String[], ClassRepository> cacheClassRepositories = new HashMap<>();
 
 	/**
 	 * Returns the first ClassRepository object in the cache, or null if the cache is empty
@@ -74,83 +74,76 @@ public class ClassRepository {
 	}
 	
 	private ClassRepository(String[] prefixes) {
-		cache = new HashSet<JavaClass>();
-		ClasspathClassesEnumerator.Processor p = new ClasspathClassesEnumerator.Processor() {
-			@Override
-			public void process(String className) throws Exception {
-				try {
-					JavaClass cl = Repository.lookupClass(className);
-					cache.add(cl);
-				} catch (Exception e) {
-					System.out.println("Class name is : " + className);
-					throw e;
-				}
-			}	
-		};	
+		cache = new HashSet<>();
+		ClasspathClassesEnumerator.Processor p = className -> {
+            try {
+                JavaClass cl = Repository.lookupClass(className);
+                cache.add(cl);
+            } catch (Exception e) {
+                System.out.println("Class name is : " + className);
+                throw e;
+            }
+        };
 		ClasspathClassesEnumerator.enumerateClasses(p, prefixes);		
 	}
 
-	public <T> Collection<Class<T>> getClasses(Class<T> mod) throws Exception {
-		logger.debug("Getting classes of model " + mod);
-		JavaClass model = Repository.lookupClass(mod);
-		ArrayList<Class<T>> list = new ArrayList<Class<T>>();
-		if (mod.isInterface()) {
-			for (JavaClass c : cache) {
-				//System.out.print(".");
-				//logger.debug("Testing class " + c.getClassName());
-				boolean flag = false;
-				try {
-					flag = Repository.implementationOf(c, model);
-				}
-				catch(ClassNotFoundException e) {
-				/*	System.out.print("e");
-					e.printStackTrace();*/
-					continue;
-				}
-				catch(ClassFormatException e) {
-					System.out.println("ClassFormatException for class :" + c.getClassName());
-					continue;
-				}
-				if (flag) {
-					if (c.isAbstract() == false) {
-						logger.debug("Found class " + c.getClassName());						
-						list.add((Class<T>)Class.forName(c.getClassName()));
+	public <T> Collection<Class<T>> getClasses(Class<T> mod) {
+		try {
+			logger.debug("Getting classes of model " + mod);
+			JavaClass model = Repository.lookupClass(mod);
+			ArrayList<Class<T>> list = new ArrayList<>();
+			if (mod.isInterface()) {
+				for (JavaClass c : cache) {
+					boolean flag;
+					try {
+						flag = Repository.implementationOf(c, model);
+					} catch (ClassNotFoundException e) {
+						continue;
+					} catch (ClassFormatException e) {
+						System.out.println("ClassFormatException for class :" + c.getClassName());
+						continue;
 					}
-				} else {
-					for (JavaClass superClass : c.getSuperClasses()) {
-						flag = false;
-						try {
-							flag = Repository.implementationOf(superClass, model);
+					if (flag) {
+						if (!c.isAbstract()) {
+							logger.debug("Found class " + c.getClassName());
+							list.add(ClassUtils.safeForName(c.getClassName()));
 						}
-						catch (ClassNotFoundException e) {
-							continue;
-						}
-						if (flag) {
-							if (c.isAbstract() == false) {
-								list.add((Class<T>)Class.forName(c.getClassName()));
-								break;
+					} else {
+						for (JavaClass superClass : c.getSuperClasses()) {
+                            try {
+								flag = Repository.implementationOf(superClass, model);
+							} catch (ClassNotFoundException e) {
+								continue;
+							}
+							if (flag) {
+								if (!c.isAbstract()) {
+									list.add(ClassUtils.safeForName(c.getClassName()));
+									break;
+								}
 							}
 						}
 					}
 				}
-			}
-		} else {
-			for (Iterator<JavaClass> ite = cache.iterator() ; ite.hasNext() ; ) {
-				JavaClass c = ite.next();
-				try {
-					if (Repository.instanceOf(c, model)) {
-						if (c.isAbstract() == false) {
-							list.add((Class<T>)Class.forName(c.getClassName()));
+			} else {
+				for (Iterator<JavaClass> ite = cache.iterator(); ite.hasNext(); ) {
+					JavaClass c = ite.next();
+					try {
+						if (Repository.instanceOf(c, model)) {
+							if (!c.isAbstract()) {
+								list.add(ClassUtils.safeForName(c.getClassName()));
+							}
 						}
+					} catch (Throwable e) {
+						System.out.println("ERROR with class " + c.getClassName());
+						//	System.out.println(e);
+						ite.remove();
 					}
 				}
-				catch (Throwable e) {
-					System.out.println("ERROR with class " + c.getClassName());
-				//	System.out.println(e);
-					ite.remove();
-				}
 			}
+			return list;
 		}
-		return list;
+		catch (ClassNotFoundException e) {
+			throw new IllegalStateException(e);
+		}
 	}	
 }

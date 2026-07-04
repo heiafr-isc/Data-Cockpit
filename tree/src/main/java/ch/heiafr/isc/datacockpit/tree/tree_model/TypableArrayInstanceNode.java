@@ -38,10 +38,10 @@ public class TypableArrayInstanceNode extends TypableChooseNode {
 
 	private static final long serialVersionUID = 1L;
 
-	public TypableArrayInstanceNode(Class<?> c,
+	public TypableArrayInstanceNode(
+			Class<?> c,
 			Map<String, String> annotationMap,
-			ObjectConstuctionTreeModel<?> containingTree, boolean checkDef)
-			throws ClassNotFoundException {
+			ObjectConstructionTreeModel<?> containingTree) {
 		super(c, annotationMap, containingTree);
 		checkConfigured();
 	}
@@ -61,8 +61,8 @@ public class TypableArrayInstanceNode extends TypableChooseNode {
 		return "Array of type " + parameterType + " with " + getChildCount() + " elements";
 	}
 	
-	public Iterator<Pair<Object, ObjectRecipe>> iterator() {
-		Iterator<Pair<Object, ObjectRecipe>> ret = new Iterator<Pair<Object, ObjectRecipe>>() {
+	public Iterator<Pair<Object, ObjectRecipe<?>>> iterator() {
+		return new Iterator<Pair<Object, ObjectRecipe<?>>>() {
 
 			private boolean delivered = false;
 
@@ -72,9 +72,9 @@ public class TypableArrayInstanceNode extends TypableChooseNode {
 			}
 
 			@Override
-			public Pair<Object, ObjectRecipe> next() {
+			public Pair<Object, ObjectRecipe<?>> next() {
 				this.delivered = true;
-				return new Pair<Object, ObjectRecipe>(createArray(), null);
+				return new Pair<>(createArray(), null);
 			}
 
 			@Override
@@ -82,7 +82,6 @@ public class TypableArrayInstanceNode extends TypableChooseNode {
 				throw new UnsupportedOperationException();
 			}
 		};
-		return ret;
 	}
 	
 	protected Object createArray() {
@@ -103,7 +102,7 @@ public class TypableArrayInstanceNode extends TypableChooseNode {
 	
 	@Override
 	public List<ActionItem> getActions() {
-		List<ActionItem> toReturn = new ArrayList<ActionItem>();
+		List<ActionItem> toReturn = new ArrayList<>();
 		toReturn.add(new ActionItem("Suppress this array", "suppress"));			
 		toReturn.add(new ActionItem("Empty this array", REMOVE_ALL));
 		return toReturn;
@@ -126,10 +125,11 @@ public class TypableArrayInstanceNode extends TypableChooseNode {
 	
 	@Override
 	protected AbstractParameterChooseNode paremeterChooseNodeClone(
-			Class<?> userObject, Map<String, String> annotationMap2,
-			ObjectConstuctionTreeModel<?> containingTreeModel, boolean b)
-			throws Exception {
-		return new TypableArrayInstanceNode(userObject, annotationMap2, containingTreeModel, false);
+			Class<?> userObject,
+			Map<String, String> annotationMap2,
+			ObjectConstructionTreeModel<?> containingTreeModel,
+			boolean b) {
+		return new TypableArrayInstanceNode(userObject, annotationMap2, containingTreeModel);
 	}	
 
 

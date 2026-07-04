@@ -29,8 +29,6 @@ package ch.heiafr.isc.datacockpit.tree.gui;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.LayoutManager;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 
@@ -67,20 +65,10 @@ public class TypableParameterGUIContainer extends ParameterGUIContainer {
 			@Override
 			public void focusLost(FocusEvent e) {}
 		});
-		text.addActionListener(new ActionListener() {		
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				node.actionPerformed(TypableChooseNode.ADD);
-				SwingUtilities.invokeLater(new Runnable() {
-
-					@Override
-					public void run() {
-						text.requestFocusInWindow();
-					}
-					
-				});
-			}
-		});	
+		text.addActionListener(arg0 -> {
+            node.actionPerformed(TypableChooseNode.ADD);
+            SwingUtilities.invokeLater(() -> text.requestFocusInWindow());
+        });
 		text.getDocument().addDocumentListener(new DocumentListener() {			
 			@Override
 			public void removeUpdate(DocumentEvent arg0) {

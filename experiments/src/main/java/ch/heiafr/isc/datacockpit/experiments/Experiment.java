@@ -33,12 +33,6 @@ import ch.heiafr.isc.datacockpit.tree.experiment_aut.WrongExperimentException;
 
 public interface Experiment {
 	
-	public void run(AbstractResultsManager man, AbstractResultsDisplayer dis) throws WrongExperimentException;
-	
-	public static class globals {
-		public static ClassRepository classRepo = null;
-	}
-	
-	
+	void run(AbstractResultsManager man, AbstractResultsDisplayer dis) throws WrongExperimentException;
 	
 }
