@@ -24,13 +24,41 @@
  * 
  * Contributor list -
  */
-package ch.heiafr.isc.datacockpit.tree.experiment_aut;
+package ch.heiafr.isc.datacockpit.tree.tree_model;
 
-import ch.heiafr.isc.datacockpit.general_libraries.results.AbstractResultsDisplayer;
-import ch.heiafr.isc.datacockpit.general_libraries.results.AbstractResultsManager;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
-public interface Experiment {
+public class ObjectRecipe<T> {
 	
-	void run(AbstractResultsManager man, AbstractResultsDisplayer dis) throws WrongExperimentException;
+	private final Constructor<T> constructor;
+	private Object[] parameters;
+	private ObjectRecipe<?>[] futureParameters;
 	
+	public ObjectRecipe(Constructor<T> c, Object[] param) {
+		this.constructor = c;
+		this.parameters = param;
+	}
+
+	// Issue github #77
+	public ObjectRecipe(Constructor<T> c, ObjectRecipe<?>[] subs) {
+		this.constructor = c;
+		this.futureParameters = subs;
+	}
+	
+	public T build() {
+		try {
+			if (parameters == null) {
+				parameters = new Object[futureParameters.length];
+				for (int i = 0 ; i < parameters.length ; i++) {
+					parameters[i] = futureParameters[i].build();
+				}
+			}
+			return constructor.newInstance(parameters);
+		} catch (IllegalArgumentException | InstantiationException | IllegalAccessException |
+                 InvocationTargetException e) {
+			throw new IllegalStateException(e);
+		}
+    }
+
 }

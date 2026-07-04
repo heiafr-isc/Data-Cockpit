@@ -24,20 +24,46 @@
  * 
  * Contributor list -
  */
-package ch.heiafr.isc.datacockpit.tree.clazzes;
+package ch.heiafr.isc.datacockpit.general_libraries.gui;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 
+import javax.swing.JDialog;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.PARAMETER)
-public @interface ParamName {
-	String name();
-	String default_() default "";
-	Class<?> defaultClass_() default Object.class;
-	Class<?> abstractClass() default Object.class;
-	Class<?> requireInterface() default Object.class;
+public class ProgressBarDialog extends JDialog {
+	
+	private static final long serialVersionUID = 1L;
+	private final int steps;
+	private int current = 0;
+	private final JProgressBar progressBar;
+	
+	public ProgressBarDialog(int steps) {
+		this.steps = steps;
+		this.setSize(300, 100);
+		this.setTitle("Progress");
+		this.progressBar = new JProgressBar(0, steps);
+		progressBar.setSize(220, 70);
+		progressBar.setPreferredSize(new Dimension(220, 60));
+		JPanel panel = new JPanel(new FlowLayout());
+		panel.add(progressBar);
+		this.setContentPane(panel);
+	}
+	
+	public void incrementProgression() {
+		current++;
+		progressBar.setValue(current);
+		if (current == steps) {
+			this.setVisible(false);
+		}
+	}
+	
+	public ProgressBarDialog setDialogVisible() {
+		setLocationRelativeTo(null);
+		super.setVisible(true);
+		return this;
+	}
+
 }

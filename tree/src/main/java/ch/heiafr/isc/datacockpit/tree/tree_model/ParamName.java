@@ -24,41 +24,20 @@
  * 
  * Contributor list -
  */
-package ch.heiafr.isc.datacockpit.tree.clazzes;
+package ch.heiafr.isc.datacockpit.tree.tree_model;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public class ObjectRecipe<T> {
-	
-	private final Constructor<T> constructor;
-	private Object[] parameters;
-	private ObjectRecipe<?>[] futureParameters;
-	
-	public ObjectRecipe(Constructor<T> c, Object[] param) {
-		this.constructor = c;
-		this.parameters = param;
-	}
 
-	// Issue github #77
-	public ObjectRecipe(Constructor<T> c, ObjectRecipe<?>[] subs) {
-		this.constructor = c;
-		this.futureParameters = subs;
-	}
-	
-	public T build() {
-		try {
-			if (parameters == null) {
-				parameters = new Object[futureParameters.length];
-				for (int i = 0 ; i < parameters.length ; i++) {
-					parameters[i] = futureParameters[i].build();
-				}
-			}
-			return constructor.newInstance(parameters);
-		} catch (IllegalArgumentException | InstantiationException | IllegalAccessException |
-                 InvocationTargetException e) {
-			throw new IllegalStateException(e);
-		}
-    }
-
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.PARAMETER)
+public @interface ParamName {
+	String name();
+	String default_() default "";
+	Class<?> defaultClass_() default Object.class;
+	Class<?> abstractClass() default Object.class;
+	Class<?> requireInterface() default Object.class;
 }

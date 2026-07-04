@@ -24,17 +24,17 @@
  * 
  * Contributor list -
  */
-package ch.heiafr.isc.datacockpit.tree.object_enum;
+package ch.heiafr.isc.datacockpit.experiments;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import ch.heiafr.isc.datacockpit.tree.experiment_aut.Experiment;
+import ch.heiafr.isc.datacockpit.database.AbstractInOutDataManager;
 import ch.heiafr.isc.datacockpit.tree.experiment_aut.WrongExperimentException;
-import ch.heiafr.isc.datacockpit.tree.clazzes.ClassRepository;
+import ch.heiafr.isc.datacockpit.general_libraries.clazzes.ClassRepository;
 import ch.heiafr.isc.datacockpit.general_libraries.results.ResultDisplayService;
-import ch.heiafr.isc.datacockpit.database.SmartDataPointCollector;
+import ch.heiafr.isc.datacockpit.tree.object_enum.AbstractEnumerator;
 
 /**
  * Handles enumerated experiment objects (thus implements ObjectEnumerationManager)
@@ -51,13 +51,21 @@ public class ExperimentExecutionManager<T extends Experiment> extends AbstractEn
 			"object_enum.ch.heiafr.isc.tree.ExperimentExecutionManager.ResultDisplayService";
 
 	// A passer dans le constructeur
-	protected final SmartDataPointCollector db = new SmartDataPointCollector();
+	protected AbstractInOutDataManager db;
 	protected int i;
 	protected long start;
 	protected boolean success = true;
 	final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm.ss");
 	// Issue github #78
 	private static final ArrayList<Class<?>> registeredCachedClasses = new ArrayList<>();
+
+	public ExperimentExecutionManager(AbstractInOutDataManager resultsManager) {
+		if (resultsManager == null) {
+			throw new NullPointerException("Result manager cannot be null");
+		}
+		this.db = resultsManager;
+	}
+
 
 	@Override
 	public void clearEnumerationResults() {

@@ -32,7 +32,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import ch.heiafr.isc.datacockpit.tree.clazzes.ObjectRecipe;
 import ch.heiafr.isc.datacockpit.general_libraries.utils.Pair;
 
 public class TypableArrayInstanceNode extends TypableChooseNode {

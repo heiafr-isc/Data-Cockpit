@@ -24,9 +24,12 @@
  * 
  * Contributor list -
  */
-package ch.heiafr.isc.datacockpit.tree.clazzes;
+package ch.heiafr.isc.datacockpit.general_libraries.clazzes;
 
 import java.io.File;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -56,16 +59,8 @@ public class ClasspathClassesEnumerator {
 		this.p = p;
 		processPrefixes(prefixes);
 		try {
-			String cockpitPath = System.getProperty("datacockpit.path");
-			if (cockpitPath == null) {
-				cockpitPath = System.getProperty("java.class.path");
-			}
-
-			logger.info("Cockpit path is " + cockpitPath);
-
-			String[] ss = cockpitPath.split(System.getProperty("path.separator"));
-			for (String c : ss) {
-				File f = new File(c);
+			for (URL c : this.getClassPathItems()) {
+				File f = Paths.get(c.toURI()).toFile();
 				if (f.isDirectory()) {
 					processDir(f, "", 0);
 				} else {
@@ -85,6 +80,42 @@ public class ClasspathClassesEnumerator {
 		} catch (Exception e) {
 			logger.error("Cannot process jar " + e);
 		}		
+	}
+
+	private URL[] getClassPathItems() {
+		System.out.println("Finding classpath items");
+		// Method 1: explicit system property
+		String cockpitPath = System.getProperty("datacockpit.path");
+		if (cockpitPath != null) {
+			URL[] urls = extractURIsFromStringClassPath(cockpitPath);
+			System.out.println("Found " + urls.length + " classpath items by looking at the 'datacockpit.path' property");
+			return urls;
+		}
+		// Method 2: check is a URLClassLoader is used (typically the case in a Maven environment
+		if (Thread.currentThread().getContextClassLoader() instanceof URLClassLoader) {
+			URL[] urls = ((URLClassLoader) Thread.currentThread().getContextClassLoader()).getURLs();
+			System.out.println("Found " + urls.length + " classpath items through a URLClassLoader");
+			return urls;
+		}
+		// Method 3: fallback - use the default 'java.class.path' property
+		cockpitPath = System.getProperty("java.class.path");
+		URL[] urls = extractURIsFromStringClassPath(cockpitPath);
+		System.out.println("Found " + urls.length + " classpath items by looking at the 'java.class.path' property");
+		return urls;
+	}
+
+	private static URL[] extractURIsFromStringClassPath(String classPath) {
+		try {
+			String[] items = classPath.split(File.pathSeparator);
+			URL[] urls = new URL[items.length];
+			for (int i = 0; i < items.length; i++) {
+				urls[i] = Paths.get(items[i]).toUri().toURL();
+			}
+			return urls;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 	private void processPrefixes(String[] prefixes) {

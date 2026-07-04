@@ -24,7 +24,7 @@
  * 
  * Contributor list -
  */
-package ch.heiafr.isc.datacockpit.tree.clazzes;
+package ch.heiafr.isc.datacockpit.general_libraries.clazzes;
 
 public class ClassUtils {
 	
@@ -48,7 +48,10 @@ public class ClassUtils {
 	
 	public static boolean isHeritingFrom(Class<?> class_, Class<?> superClass) {
 		boolean ret = false;
-		while (!ret && !class_.getSuperclass().equals(Object.class)) {
+		while (!ret) {
+			if (class_.getSuperclass().equals(Object.class)) {
+				return (superClass.equals(Object.class));
+			}
 			if (class_.getSuperclass().equals(superClass)) {
 				ret = true;
 			} else {

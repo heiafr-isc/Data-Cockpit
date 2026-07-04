@@ -26,9 +26,8 @@
  */
 package ch.heiafr.isc.datacockpit.experiments;
 
-import ch.heiafr.isc.datacockpit.tree.clazzes.ParamName;
+import ch.heiafr.isc.datacockpit.tree.tree_model.ParamName;
 import ch.heiafr.isc.datacockpit.experiments.entrypoint.ExperimentConfigurationCockpit;
-import ch.heiafr.isc.datacockpit.tree.experiment_aut.Experiment;
 import ch.heiafr.isc.datacockpit.tree.experiment_aut.WrongExperimentException;
 import ch.heiafr.isc.datacockpit.general_libraries.results.AbstractResultsDisplayer;
 import ch.heiafr.isc.datacockpit.general_libraries.results.AbstractResultsManager;
@@ -36,8 +35,8 @@ import ch.heiafr.isc.datacockpit.general_libraries.results.DataPoint;
 
 public class MarathonRunnerModelExperiment implements Experiment {
 	
-	private double water;
-	private double temperature;
+	private final double water;
+	private final double temperature;
 	
 	public MarathonRunnerModelExperiment(
 			@ParamName(name="Water intake during the race") double water, 

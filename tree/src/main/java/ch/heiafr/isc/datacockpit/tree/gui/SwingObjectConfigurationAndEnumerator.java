@@ -36,7 +36,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
-import ch.heiafr.isc.datacockpit.tree.clazzes.ClassRepository;
+import ch.heiafr.isc.datacockpit.general_libraries.gui.ProgressBarDialog;
+import ch.heiafr.isc.datacockpit.general_libraries.clazzes.ClassRepository;
 import ch.heiafr.isc.datacockpit.general_libraries.logging.Logger;
 import ch.heiafr.isc.datacockpit.tree.object_enum.AbstractEnumerator;
 import ch.heiafr.isc.datacockpit.tree.tree_model.ObjectConstructionTreeModel;
