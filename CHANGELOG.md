@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### [PR 87](https://github.com/heiafr-isc/Data-Cockpit/pull/87)
+patch: The code of the tree module has been cleaned, and most warnings removed. Some warnings remain but there are now GitHub issues to describe them.
+
+- tree: code cleaned
+
 ### [PR 88](https://github.com/heiafr-isc/Data-Cockpit/pull/88)
 minor: - general_libraries: improve the way classes are explored (moved from tree)
 - experiments: changed how prefixes are handled
