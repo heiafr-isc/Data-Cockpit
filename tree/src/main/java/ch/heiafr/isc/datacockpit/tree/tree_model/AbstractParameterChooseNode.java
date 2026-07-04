@@ -39,8 +39,7 @@ import java.util.NoSuchElementException;
 
 import javax.swing.tree.TreeNode;
 
-import ch.heiafr.isc.datacockpit.tree.clazzes.ObjectRecipe;
-import ch.heiafr.isc.datacockpit.tree.clazzes.ClassUtils;
+import ch.heiafr.isc.datacockpit.general_libraries.clazzes.ClassUtils;
 import ch.heiafr.isc.datacockpit.general_libraries.utils.Pair;
 
 
@@ -60,11 +59,11 @@ public abstract class AbstractParameterChooseNode extends AbstractChooseNode {
 	
 	protected abstract AbstractParameterChooseNode paremeterChooseNodeClone(
 			Class<?> userObject, Map<String, String> annotationMap2,
-			ObjectConstuctionTreeModel<?> containingTreeModel, boolean b) throws Exception;
+			ObjectConstructionTreeModel<?> containingTreeModel, boolean b);
 	
 	public AbstractParameterChooseNode(
 			Class<?> c,
-			ObjectConstuctionTreeModel<?> containingTree, 
+			ObjectConstructionTreeModel<?> containingTree,
 			Map<String, String> annotationMap) {
 		super(containingTree);
 		this.setUserObject(c);
@@ -78,7 +77,7 @@ public abstract class AbstractParameterChooseNode extends AbstractChooseNode {
 
 	public String getText() {
 		String annotations = annotationMap.get("ParamName.name");
-		String text = "";
+		String text;
 		if (annotations == null) {
 			text = parameterType;
 		} else {
@@ -100,7 +99,7 @@ public abstract class AbstractParameterChooseNode extends AbstractChooseNode {
 	protected void buildClassMenu(List<ActionItem> toReturn, String clastype) {
 		try {
 			List<Class<?>> subClasses = getContainingTreeModel().getHeritedClasses(Class.forName(clastype));
-			for (Class c : subClasses) {
+			for (Class<?> c : subClasses) {
 				if (!Modifier.isAbstract(c.getModifiers())) {
 					String className = c.getName();
 					ActionItem classItem = new ActionItem(className, className);
@@ -127,7 +126,7 @@ public abstract class AbstractParameterChooseNode extends AbstractChooseNode {
 	
 	@Override
 	public List<ActionItem> getActions() {
-		List<ActionItem> toReturn = new ArrayList<ActionItem>();
+		List<ActionItem> toReturn = new ArrayList<>();
 		toReturn.add(new ActionItem(REMOVE_ALL, REMOVE_ALL));
 		return toReturn;
 	}
@@ -182,11 +181,10 @@ public abstract class AbstractParameterChooseNode extends AbstractChooseNode {
 		}	
 	}
 	
-	@SuppressWarnings("unchecked")
 	public DefinitionIterator getObjectDefinitionIterator() {
 		return new DefinitionIterator() {
 			
-			Iterator childsConstructors;
+			Iterator<?> childsConstructors;
 			ConstructorChooseNode currentConstructor;
 			DefinitionIterator[] subIterators;
 			ObjectDefinition current = null;
@@ -200,7 +198,6 @@ public abstract class AbstractParameterChooseNode extends AbstractChooseNode {
 			
 			@Override
 			void reset() {
-				// TODO Auto-generated method stub
 				iteratorExhausted = false;				
 				childsConstructors = children.iterator();
 				constructorsExhausted = startWithNextConstructor();
@@ -212,7 +209,7 @@ public abstract class AbstractParameterChooseNode extends AbstractChooseNode {
 				AbstractChooseNode abstractNode = (AbstractChooseNode) (childsConstructors.next());
 				if (abstractNode instanceof ConstructorChooseNode) {
 					currentConstructor = (ConstructorChooseNode)abstractNode;
-					ArrayList<TreeNode> chNodeList = (ArrayList<TreeNode>)(Collections.list(currentConstructor.children()));
+					ArrayList<TreeNode> chNodeList = Collections.list(currentConstructor.children());
 					subIterators = new DefinitionIterator[chNodeList.size()];
 					int index = 0;
 					for (TreeNode node : chNodeList) {
@@ -223,8 +220,7 @@ public abstract class AbstractParameterChooseNode extends AbstractChooseNode {
 					subIterators = new DefinitionIterator[1];
 					subIterators[0] = ((LeafChooseNode)abstractNode).getDefinitionIterator();
 				}
-				boolean b = !childsConstructors.hasNext();
-				return b;
+				return !childsConstructors.hasNext();
 			}
 			
 			private ObjectDefinition getNext() {
@@ -260,8 +256,8 @@ public abstract class AbstractParameterChooseNode extends AbstractChooseNode {
 						}
 					}
 				}
-				if (advanced == false) {
-					if (constructorsExhausted == false) {
+				if (!advanced) {
+					if (!constructorsExhausted) {
 						constructorsExhausted = startWithNextConstructor();
 					} else {
 						iteratorExhausted = true;
@@ -300,13 +296,12 @@ public abstract class AbstractParameterChooseNode extends AbstractChooseNode {
 	}
 	
 	@Override
-	public Iterator<Pair<Object, ObjectRecipe>> iterator() {
-		@SuppressWarnings("unchecked")
-		Iterator<Pair<Object, ObjectRecipe>> ret = new Iterator<Pair<Object, ObjectRecipe>>() {
+	public Iterator<Pair<Object, ObjectRecipe<?>>> iterator() {
 
+		return new Iterator<Pair<Object, ObjectRecipe<?>>>() {
 
-			Iterator<TreeNode> childs;
-			Iterator<Pair<Object, ObjectRecipe>> presentChildIterator;
+			final Iterator<TreeNode> childs;
+			Iterator<Pair<Object, ObjectRecipe<?>>> presentChildIterator;
 			
 			{
 			
@@ -325,11 +320,11 @@ public abstract class AbstractParameterChooseNode extends AbstractChooseNode {
 			}
 
 			@Override
-			public Pair<Object, ObjectRecipe> next() {
+			public Pair<Object, ObjectRecipe<?>> next() {
 				if (hasChildrenNext()) {
 			
 					if ((AbstractParameterChooseNode.this instanceof ArrayChooseNode) && (currentIteratorChild instanceof ConstructorChooseNode)) {
-						List<Pair<Object, ObjectRecipe>> instances = new ArrayList<Pair<Object, ObjectRecipe>>();
+						List<Pair<Object, ObjectRecipe<?>>> instances = new ArrayList<>();
 						while (presentChildIterator.hasNext()) {
 							instances.add(presentChildIterator.next());
 						}
@@ -346,7 +341,7 @@ public abstract class AbstractParameterChooseNode extends AbstractChooseNode {
 						for (int i = 0; i < instances.size(); ++i) {
 							Array.set(array, i, instances.get(i).getFirst());
 						}
-						return new Pair<Object, ObjectRecipe>(array, null);
+						return new Pair<>(array, null);
 					} else {
 						return presentChildIterator.next();
 					}
@@ -378,12 +373,13 @@ public abstract class AbstractParameterChooseNode extends AbstractChooseNode {
 				return false;
 			}
 		};
-		return ret;
 	}
 	
 	/**
 	 * Used to clone the tree prior to launch experiment list. This prevents hick-ups in the iteration
 	 */
+
+	// Issue github #81
 	public Object clone() {
 		try {		
 			AbstractParameterChooseNode ret = paremeterChooseNodeClone((Class<?>)this.getUserObject(), annotationMap, this.getContainingTreeModel(), false);

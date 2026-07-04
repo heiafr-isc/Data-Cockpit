@@ -24,7 +24,7 @@
  * 
  * Contributor list -
  */
-package ch.heiafr.isc.datacockpit.tree.gui;
+package ch.heiafr.isc.datacockpit.general_libraries.gui;
 
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -36,9 +36,9 @@ import javax.swing.JProgressBar;
 public class ProgressBarDialog extends JDialog {
 	
 	private static final long serialVersionUID = 1L;
-	private int steps;
+	private final int steps;
 	private int current = 0;
-	private JProgressBar progressBar;
+	private final JProgressBar progressBar;
 	
 	public ProgressBarDialog(int steps) {
 		this.steps = steps;

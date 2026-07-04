@@ -24,7 +24,7 @@
  * 
  * Contributor list -
  */
-package ch.heiafr.isc.datacockpit.tree.clazzes;
+package ch.heiafr.isc.datacockpit.general_libraries.clazzes;
 
 public class ClassUtils {
 	
@@ -48,25 +48,39 @@ public class ClassUtils {
 	
 	public static boolean isHeritingFrom(Class<?> class_, Class<?> superClass) {
 		boolean ret = false;
-		while (!ret && !class_.getSuperclass().equals(Object.class)) {
+		while (!ret) {
+			if (class_.getSuperclass().equals(Object.class)) {
+				return (superClass.equals(Object.class));
+			}
 			if (class_.getSuperclass().equals(superClass)) {
 				ret = true;
 			} else {
 				for (Class<?> interfaces : class_.getInterfaces()) {
-					if (interfaces.equals(superClass)) {
-						ret = true;
-					}
+                    if (interfaces.equals(superClass)) {
+                        ret = true;
+                        break;
+                    }
 				}
 				class_ = class_.getSuperclass();
 			}
 		}
 		for (Class<?> interfaces : class_.getInterfaces()) {
-			if (interfaces.equals(superClass)) {
-				ret = true;
-			}
+            if (interfaces.equals(superClass)) {
+                ret = true;
+                break;
+            }
 		}
 		return ret;
 	}
-	
+
+	public static <T> Class<T> safeForName(String className) {
+        try {
+			@SuppressWarnings("unchecked")
+			Class<T> cc = (Class<T>)Class.forName(className);
+			return cc;
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+	}
 
 }

@@ -29,8 +29,6 @@ package ch.heiafr.isc.datacockpit.tree.gui;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.LayoutManager;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -63,13 +61,10 @@ public class ConstructorPointerGUIContainer extends ConstructorGUIContainer {
 			add(newLabel);
 			final JCheckBox completeCartesian = new JCheckBox("Complete Cartesian Product");
 			completeCartesian.setBackground(Color.WHITE);
-			completeCartesian.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					node.isCartesianEnabled = completeCartesian.isSelected();
-					node.getContainingTreeModel().reloadTree();
-				}
-			});
+			completeCartesian.addActionListener(e -> {
+                node.isCartesianEnabled = completeCartesian.isSelected();
+                node.getContainingTreeModel().reloadTree();
+            });
 			add(completeCartesian);
 		}
 	}

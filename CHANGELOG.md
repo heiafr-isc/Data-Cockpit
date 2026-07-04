@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### [PR 94](https://github.com/heiafr-isc/Data-Cockpit/pull/94)
+patch: Following MR #93 
+
+
+
+### [PR 87](https://github.com/heiafr-isc/Data-Cockpit/pull/87)
+patch: The code of the tree module has been cleaned, and most warnings removed. Some warnings remain but there are now GitHub issues to describe them.
+
+- tree: code cleaned
+
+### [PR 88](https://github.com/heiafr-isc/Data-Cockpit/pull/88)
+minor: - general_libraries: improve the way classes are explored (moved from tree)
+- experiments: changed how prefixes are handled
+- all: reorganised classes across packages.
+
+- tree: created an example NOT related to Experiments
+- general_libraries: now classes functionalities are in gen_lib, class path exploration improved
+- general_libraties: ProgressBarDialog also moved there
+- experiments: regrouped everything that concerns Experiments here
+
 ## 1.4.3 (2025.11.28)
 
 ### [PR 73](https://github.com/heiafr-isc/Data-Cockpit/pull/73)

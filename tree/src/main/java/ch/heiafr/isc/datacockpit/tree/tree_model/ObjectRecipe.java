@@ -24,23 +24,24 @@
  * 
  * Contributor list -
  */
-package ch.heiafr.isc.datacockpit.tree.clazzes;
+package ch.heiafr.isc.datacockpit.tree.tree_model;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 public class ObjectRecipe<T> {
 	
-	private Constructor<T> constructor;
+	private final Constructor<T> constructor;
 	private Object[] parameters;
-	private ObjectRecipe[] futureParameters;
+	private ObjectRecipe<?>[] futureParameters;
 	
 	public ObjectRecipe(Constructor<T> c, Object[] param) {
 		this.constructor = c;
 		this.parameters = param;
 	}
-	
-	public ObjectRecipe(Constructor<T> c, ObjectRecipe[] subs) {
+
+	// Issue github #77
+	public ObjectRecipe(Constructor<T> c, ObjectRecipe<?>[] subs) {
 		this.constructor = c;
 		this.futureParameters = subs;
 	}
@@ -54,15 +55,10 @@ public class ObjectRecipe<T> {
 				}
 			}
 			return constructor.newInstance(parameters);
-		} catch (IllegalArgumentException e) {
-			throw new IllegalStateException(e);
-		} catch (InstantiationException e) {
-			throw new IllegalStateException(e);
-		} catch (IllegalAccessException e) {
-			throw new IllegalStateException(e);
-		} catch (InvocationTargetException e) {
+		} catch (IllegalArgumentException | InstantiationException | IllegalAccessException |
+                 InvocationTargetException e) {
 			throw new IllegalStateException(e);
 		}
-	}
+    }
 
 }

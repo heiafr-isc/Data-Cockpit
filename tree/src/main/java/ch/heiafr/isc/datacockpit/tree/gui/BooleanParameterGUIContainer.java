@@ -28,8 +28,6 @@ package ch.heiafr.isc.datacockpit.tree.gui;
 
 import java.awt.Dimension;
 import java.awt.LayoutManager;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -41,19 +39,16 @@ public class BooleanParameterGUIContainer extends ParameterGUIContainer {
 
 	private static final long serialVersionUID = 1L;
 
-	public BooleanParameterGUIContainer(final BooleanChooseNode node, LayoutManager man, int prefix) {
+	public BooleanParameterGUIContainer(
+			final BooleanChooseNode node,
+			LayoutManager man,
+			int prefix) {
 		super(node, man, prefix);
 		final JCheckBox choice = new JCheckBox();
 		choice.setSelected(false);
 		choice.setPreferredSize(new Dimension(60, lineHeight));
 		choice.setBackground(this.getBackground());
-		choice.addActionListener(new ActionListener() {	
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				node.setValue(choice.isSelected());
-			//	node.actionPerformed(BooleanChooseNode.CHECKBOX);
-			}
-		});
+		choice.addActionListener(arg0 -> node.setValue(choice.isSelected()));
 		choice.addMouseListener(new MouseListener() {
 			
 			@Override
@@ -70,8 +65,6 @@ public class BooleanParameterGUIContainer extends ParameterGUIContainer {
 			
 			@Override
 			public void mouseClicked(MouseEvent e) {
-		//		System.out.println("uiehr");
-		//		node.setValue(choice.isSelected());
 			}
 		});
 		add(choice, new Placement(100, 130, false));
