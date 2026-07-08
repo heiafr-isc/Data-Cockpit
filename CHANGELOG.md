@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 1.5.0 (2026.07.08)
 
 ### [PR 94](https://github.com/heiafr-isc/Data-Cockpit/pull/94)
 patch: Following MR #93 
