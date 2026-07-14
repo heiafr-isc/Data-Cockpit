@@ -27,6 +27,8 @@
 package ch.heiafr.isc.datacockpit.general_libraries.clazzes;
 
 public class ClassUtils {
+
+	private ClassUtils() {}
 	
 	public static boolean isTypableType(String name) {
 		return name.equals("int") || name.equals("float") || name.equals("double") || name.equals("long") || name.equals("short")
@@ -45,32 +47,16 @@ public class ClassUtils {
 	public static boolean isBooleanType(Class<?> c) {
 		return isBooleanType(c.getName());
 	}
-	
-	public static boolean isHeritingFrom(Class<?> class_, Class<?> superClass) {
-		boolean ret = false;
-		while (!ret) {
-			if (class_.getSuperclass().equals(Object.class)) {
-				return (superClass.equals(Object.class));
-			}
-			if (class_.getSuperclass().equals(superClass)) {
-				ret = true;
-			} else {
-				for (Class<?> interfaces : class_.getInterfaces()) {
-                    if (interfaces.equals(superClass)) {
-                        ret = true;
-                        break;
-                    }
-				}
-				class_ = class_.getSuperclass();
-			}
-		}
-		for (Class<?> interfaces : class_.getInterfaces()) {
-            if (interfaces.equals(superClass)) {
-                ret = true;
-                break;
-            }
-		}
-		return ret;
+
+
+	/**
+	 * Tests if objects of a "candidate" class can be considered as instances of as objects of a "target" class
+	 * @param candidate The candidate class
+	 * @param target The target class
+	 * @return true if objects of a "candidate" class can be considered as instances of as objects of a "target" class
+	 */
+	public static boolean isHeritingFrom(Class<?> candidate, Class<?> target) {
+		return target.isAssignableFrom(candidate);
 	}
 
 	public static <T> Class<T> safeForName(String className) {
@@ -79,7 +65,7 @@ public class ClassUtils {
 			Class<T> cc = (Class<T>)Class.forName(className);
 			return cc;
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
 	}
 

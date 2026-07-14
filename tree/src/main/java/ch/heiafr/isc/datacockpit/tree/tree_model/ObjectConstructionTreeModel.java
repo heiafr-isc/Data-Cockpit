@@ -91,7 +91,7 @@ public class ObjectConstructionTreeModel<X> extends DefaultTreeModel implements 
 				return read;
 			}
 			in.close();
-			throw new Exception("Wrong format");
+			throw new IllegalStateException("Wrong format");
 		}
 		catch (FileNotFoundException e) {
 			System.out.println("Impossible to read file " + new File(s).getAbsolutePath());
@@ -99,7 +99,6 @@ public class ObjectConstructionTreeModel<X> extends DefaultTreeModel implements 
 		}
 		catch (Exception e) {
 			// Issue github #78
-			e.printStackTrace();
 			throw new IllegalStateException(e);
 		}
 	}
@@ -211,13 +210,13 @@ public class ObjectConstructionTreeModel<X> extends DefaultTreeModel implements 
 		return this.configuredConstructors;
 	}
 
-	protected List<Class<?>> getHeritedClasses(Class<?> c)  {
-		logger.debug("Looking for classes extending " + c.getSimpleName() + "...");
+	protected List<Class<?>> getHeritedClasses(Class<?> targetClass)  {
+		logger.debug("Looking for classes extending " + targetClass.getSimpleName() + "...");
 		HashSet<Class<?>> classes = new HashSet<>();
-		classes.add(c);
-		for (Class<?> cl : classRepo.getClasses(c)) {
-			if (ClassUtils.isHeritingFrom(cl, c)) {
-				classes.addAll(getHeritedClasses(cl));
+		classes.add(targetClass);
+		for (Class<?> candidate : classRepo.getClasses(targetClass)) {
+			if (ClassUtils.isHeritingFrom(candidate, targetClass)) {
+				classes.add(candidate);
 			}
 		}
 		logger.trace("Found " + classes.size() + " ones");
