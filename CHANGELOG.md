@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 1.6.0 (2026.11.23)
 
 ### [PR 99](https://github.com/heiafr-isc/Data-Cockpit/pull/99)
 minor: This PR re-introduces the ability to export data into .coc files, and to reload them afterwards.
