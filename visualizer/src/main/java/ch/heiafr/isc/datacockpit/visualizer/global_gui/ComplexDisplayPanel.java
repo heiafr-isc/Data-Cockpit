@@ -26,6 +26,7 @@
  */
 package ch.heiafr.isc.datacockpit.visualizer.global_gui;
 
+import ch.heiafr.isc.datacockpit.database.SaveAndLoadAble;
 import ch.heiafr.isc.datacockpit.general_libraries.results.*;
 import ch.heiafr.isc.datacockpit.visualizer.charts.ChartContainer;
 import ch.heiafr.isc.datacockpit.visualizer.charts.CustomChartPanel;
@@ -36,8 +37,10 @@ import org.jfree.chart.ChartPanel;
 
 import javax.swing.*;
 import javax.swing.event.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 import java.util.List;
 import java.util.*;
 import java.util.Map.Entry;
@@ -46,6 +49,9 @@ public class ComplexDisplayPanel extends JPanel implements ActionListener,
 		ItemListener, ChangeListener, WindowListener {
 
 	private static final long serialVersionUID = 4303119875318458208L;
+
+	private static final String DATASET_EXTENSION = "coc";
+	private static File lastDatasetDir = new File(System.getProperty("user.dir"));
 
 	private String title;
 
@@ -1048,8 +1054,45 @@ public class ComplexDisplayPanel extends JPanel implements ActionListener,
 		}
 	}
 	
+	/**
+	 * Replaces the content of the results store with a dataset exported with
+	 * "Export db data", and shows it in a new panel of the same window.
+	 */
+	public void loadCocFile(File f) {
+		((SaveAndLoadAble)retriever).loadFromFile(f);
+		ComplexDisplayPanel cmp = new ComplexDisplayPanel(retriever, displayerClasses, f.getName(), parentFrame);
+		parentFrame.setContentPane(cmp);
+		parentFrame.setJMenuBar(cmp.getMenubar());
+		parentFrame.revalidate();
+		parentFrame.repaint();
+	}
+
+	/**
+	 * @return the chosen dataset file, with the .coc extension added when saving, or null if cancelled
+	 */
+	private File promptForDatasetFile(boolean save) {
+		JFileChooser chooser = new JFileChooser(lastDatasetDir);
+		chooser.setFileFilter(new FileNameExtensionFilter("Exported datasets (*." + DATASET_EXTENSION + ")", DATASET_EXTENSION));
+		int option = save ? chooser.showSaveDialog(parentFrame) : chooser.showOpenDialog(parentFrame);
+		if (option != JFileChooser.APPROVE_OPTION) {
+			return null;
+		}
+		File f = chooser.getSelectedFile();
+		if (save && !f.getName().endsWith("." + DATASET_EXTENSION)) {
+			f = new File(f.getPath() + "." + DATASET_EXTENSION);
+		}
+		lastDatasetDir = f.getAbsoluteFile().getParentFile();
+		return f;
+	}
+
+	private void showDatasetError(String message, Exception e) {
+		e.printStackTrace();
+		Throwable cause = e.getCause() != null ? e.getCause() : e;
+		JOptionPane.showMessageDialog(parentFrame, message + "\n" + cause, "File error", JOptionPane.ERROR_MESSAGE);
+	}
+
 	private void resetXFC() {
-		updateProperties(seeOutputs.isSelected());		
+		updateProperties(seeOutputs.isSelected());
 		resetXShapeAndColor__();
 		resetFilterPanel__();
 		resetConstants__();
@@ -1070,6 +1113,39 @@ public class ComplexDisplayPanel extends JPanel implements ActionListener,
 		JMenuBar menuBar = new JMenuBar();
 		JMenu actions = new JMenu("Actions");
 		JMenuItem item;
+
+		if (retriever instanceof SaveAndLoadAble) {
+			item = new JMenuItem("Export db data");
+			item.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					File f = promptForDatasetFile(true);
+					if (f == null) {
+						return;
+					}
+					try {
+						((SaveAndLoadAble)retriever).saveToFile(f);
+					} catch (RuntimeException ex) {
+						showDatasetError("Unable to export the dataset to " + f, ex);
+					}
+				}
+			});
+			actions.add(item);
+			item = new JMenuItem("Load an exported dataset");
+			item.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent ev) {
+					File f = promptForDatasetFile(false);
+					if (f == null) {
+						return;
+					}
+					try {
+						loadCocFile(f);
+					} catch (RuntimeException ex) {
+						showDatasetError("Unable to load the dataset " + f, ex);
+					}
+				}
+			});
+			actions.add(item);
+		}
 
 		Pair<java.awt.event.ActionListener[], String[]> pair = displayers.get(0).getDisplayerPossibleActions(this);
 		for (int i = 0 ; i < pair.getFirst().length ; i++) {

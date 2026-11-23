@@ -47,7 +47,7 @@ import ch.heiafr.isc.datacockpit.general_libraries.utils.SimpleMap;
 import ch.heiafr.isc.datacockpit.general_libraries.utils.SimpleSet;
 import ch.heiafr.isc.datacockpit.database.io.ObjectStreamHelper;
 
-public class SmartDataPointCollector extends AbstractInOutDataManager implements Serializable {
+public class SmartDataPointCollector extends AbstractInOutDataManager implements SaveAndLoadAble, Serializable {
 
 	private static final long serialVersionUID = 1L;
 	ArrayList<InternalExecution> execList;
@@ -100,7 +100,12 @@ public class SmartDataPointCollector extends AbstractInOutDataManager implements
 		}
 	}
 
+	@Override
+	public void saveToFile(java.io.File f) {
+		ObjectStreamHelper.writeObject(new Object[]{execList, propList}, f);
+	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public void loadFromFile(java.io.File f) {
 		Object[] s = ObjectStreamHelper.readObject(f);
